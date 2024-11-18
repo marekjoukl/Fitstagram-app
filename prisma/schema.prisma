@@ -8,6 +8,96 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  pwdHash      String
+  nickname     String
+  role         Role      @default(USER)
+  
+  likedPhotos  Likes[] // Photos the user liked
+  comments     Comment[] // Comments the user made
+  groups       UsersInGroups[] // Groups the user is in
+  managesGroups Group[] @relation("ManagerOfGroups") // Groups the user manages
+  photos       Photo[]   @relation("UploadedPhotos") // Photos uploaded by the user
+}
+
+model UsersInGroups {
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int
+  group  Group  @relation(fields: [groupId], references: [id])
+  groupId Int
+
+  @@id([userId, groupId])
+}
+
+model Photo {
+  id            Int       @id @default(autoincrement())
+  name          String
+  numOfLikes    Int       @default(0)
+  date          DateTime  @default(now())
+
+  likedBy Likes[]   // Users who liked the photo
+  uploader      User      @relation("UploadedPhotos", fields: [uploaderId], references: [id])
+  uploaderId    Int
+  tags          TagsOnPhotos[] // Tags on the photo
+  comments      Comment[] // Comments on the photo
+  groups        PhotosInGroups[] // Groups the photo is in
+}
+
+model Likes {
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int
+  photo  Photo  @relation(fields: [photoId], references: [id])
+  photoId Int
+
+  @@id([userId, photoId])
+}
+
+model Tag {
+  id        Int       @id @default(autoincrement())
+  content   String
+  photos    TagsOnPhotos[] // Photos with the tag
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  photo     Photo     @relation(fields: [photoId], references: [id])
+  photoId   Int
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+
+model Group {
+  id           Int       @id @default(autoincrement())
+  name         String
+  manager      User      @relation("ManagerOfGroups", fields: [managerId], references: [id])
+  managerId    Int
+  users        UsersInGroups[] // Users in the group
+  photos       PhotosInGroups[] // Photos in the group
+}
+
+model PhotosInGroups {
+  photo   Photo  @relation(fields: [photoId], references: [id])
+  photoId Int
+  group  Group  @relation(fields: [groupId], references: [id])
+  groupId Int
+
+  @@id([photoId, groupId])
+}
+
+model TagsOnPhotos{
+  tag Tag @relation(fields: [tagId], references: [id])
+  tagId Int
+  photo Photo @relation(fields: [photoId], references: [id])
+  photoId Int
+
+  @@id([tagId, photoId])
+}
+
+enum Role {
+  USER
+  LOGGED_USER
+  MODERATOR
+  ADMIN
 }
