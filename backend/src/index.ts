@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-const express = require("express");
+import express from "express";
 const app = express();
 const prisma = new PrismaClient();
 
@@ -8,7 +8,6 @@ async function main() {
   console.log(users);
 }
 
-// Route Handler - Fix Here: Include both `req` and `res`
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
