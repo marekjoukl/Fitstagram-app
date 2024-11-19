@@ -1,31 +1,14 @@
-import { PrismaClient } from "@prisma/client";
 import express from "express";
+import authRoutes from "./routes/authRoutes.js";
+import photoRoutes from "./routes/photoRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 const app = express();
-const prisma = new PrismaClient();
+app.use(express.json());
 
-async function main() {
-  const users = await prisma.user.findMany();
-  console.log(users);
-}
-
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.get("/api/test", (req, res) => {
-  res.json({ message: "Backend is working!" });
-});
+app.use("/api/users", userRoutes);
+app.use("/api/photos", photoRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(3000, () => {
   console.log(`Example app listening on port 3000`);
 });
-
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
