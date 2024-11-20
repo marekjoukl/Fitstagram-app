@@ -14,6 +14,8 @@ type AuthUserType = {
   username: string;
   nickname: string;
   role: string;
+  image: string;
+  description: string;
 };
 
 const AuthContext = createContext<{

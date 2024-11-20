@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
 import bcryptjs from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
+import { Role } from "@prisma/client";
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -61,7 +62,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const hashedPassword = await bcryptjs.hash(password, salt);
 
     // https://avatar-placeholder.iran.liara.run/
-    const imagePlaceholder = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+    const imagePlaceholder = `https://avatar.iran.liara.run/public`;
 
     const newUser = await prisma.user.create({
       data: {
@@ -118,6 +119,46 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error: any) {
     console.log("Error in getMe controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const updateProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { nickname, image, description } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    // Update user profile
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: {
+        nickname,
+        image,
+        description,
+      },
+    });
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        nickname: updatedUser.nickname,
+        image: updatedUser.image,
+        description: updatedUser.description,
+      },
+    });
+  } catch (error: any) {
+    console.error("Error in updateProfile controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

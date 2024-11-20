@@ -1,4 +1,9 @@
-export default function ProfilePage() {
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../contexts/AuthContext";
+
+export default function Profile() {
+  const { authUser } = useAuthContext();
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="container mx-auto max-w-6xl">
@@ -7,8 +12,7 @@ export default function ProfilePage() {
           <button
             className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 shadow-md transition hover:bg-gray-300"
             onClick={() => {
-              // Replace with navigation logic, e.g., React Router's `useNavigate`
-              window.location.href = "/";
+              navigate("/");
             }}
           >
             ← Back to Main Page
@@ -18,13 +22,15 @@ export default function ProfilePage() {
         {/* User Info Section */}
         <div className="mb-8 flex flex-col items-center rounded-lg bg-white p-6 shadow-md lg:flex-row lg:items-start lg:p-8">
           <img
-            src="https://via.placeholder.com/150"
+            src={authUser?.image}
             alt="User Avatar"
             className="mb-4 h-36 w-36 rounded-full shadow-lg lg:mb-0"
           />
           <div className="lg:ml-6">
-            <h1 className="text-3xl font-bold text-gray-800">John Doe</h1>
-            <p className="mt-2 text-gray-600">Photographer and Explorer</p>
+            <h1 className="text-3xl font-bold text-gray-800">
+              {authUser?.nickname}
+            </h1>
+            <p className="mt-2 text-gray-600">{authUser?.description}</p>
             <div className="mt-4 flex space-x-6 text-gray-500">
               <p>
                 <span className="font-semibold text-gray-700">Posts:</span> 42
@@ -33,7 +39,10 @@ export default function ProfilePage() {
                 <span className="font-semibold text-gray-700">Groups:</span> 5
               </p>
             </div>
-            <button className="mt-4 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600">
+            <button
+              className="mt-4 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600"
+              onClick={() => navigate(`/profile/${authUser?.id}/edit`)}
+            >
               Edit Profile
             </button>
           </div>

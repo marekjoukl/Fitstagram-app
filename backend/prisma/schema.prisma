@@ -13,6 +13,7 @@ model User {
   pwdHash       String
   nickname      String
   image         String
+  description   String?
   role          Role            @default(USER)
   comments      Comment[]
   managesGroups Group[]         @relation("ManagerOfGroups")

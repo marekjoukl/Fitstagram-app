@@ -1,6 +1,16 @@
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../contexts/AuthContext";
 import LogoutButton from "../ui/LogoutButton";
 
 export default function Home() {
+  const { authUser } = useAuthContext();
+  const navigate = useNavigate();
+  const handleGoToProfile = () => {
+    if (authUser) {
+      navigate(`/profile/${authUser.id}`);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -18,11 +28,13 @@ export default function Home() {
           {/* User Info */}
           <div className="mb-10 text-center">
             <img
-              src="https://via.placeholder.com/100"
+              src={authUser?.image}
               alt="User Avatar"
               className="mx-auto mb-4 h-24 w-24 rounded-full shadow-lg"
             />
-            <h2 className="text-xl font-semibold text-gray-800">John Doe</h2>
+            <h2 className="text-xl font-semibold text-gray-800">
+              {authUser?.nickname}
+            </h2>
             <div className="mt-2 text-sm text-gray-500">
               <p>
                 Posts: <span className="font-medium text-gray-700">42</span>
@@ -35,7 +47,10 @@ export default function Home() {
 
           {/* Navigation Buttons */}
           <div className="flex flex-col space-y-4">
-            <button className="w-full rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-600">
+            <button
+              className="w-full rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-600"
+              onClick={handleGoToProfile}
+            >
               Go to Profile
             </button>
             <button className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
