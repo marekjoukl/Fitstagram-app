@@ -8,91 +8,101 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  username     String    @unique
-  pwdHash      String
-  nickname     String
-  role         Role      @default(USER)
-  
-  likedPhotos  Likes[] // Photos the user liked
-  comments     Comment[] // Comments the user made
-  groups       UsersInGroups[] // Groups the user is in
-  managesGroups Group[] @relation("ManagerOfGroups") // Groups the user manages
-  photos       Photo[]   @relation("UploadedPhotos") // Photos uploaded by the user
+  id            Int             @id @default(autoincrement())
+  username      String          @unique
+  pwdHash       String
+  nickname      String
+  image         String
+  role          Role            @default(USER)
+  comments      Comment[]
+  managesGroups Group[]         @relation("ManagerOfGroups")
+  likedPhotos   Likes[]
+  photos        Photo[]         @relation("UploadedPhotos")
+  groups        UsersInGroups[]
 }
 
 model UsersInGroups {
-  user   User   @relation(fields: [userId], references: [id])
-  userId Int
-  group  Group  @relation(fields: [groupId], references: [id])
+  userId  Int
   groupId Int
+  group   Group @relation(fields: [groupId], references: [id])
+  user    User  @relation(fields: [userId], references: [id])
 
   @@id([userId, groupId])
+  @@index([groupId], map: "UsersInGroups_groupId_fkey")
 }
 
 model Photo {
-  id            Int       @id @default(autoincrement())
-  name          String
-  numOfLikes    Int       @default(0)
-  date          DateTime  @default(now())
+  id         Int              @id @default(autoincrement())
+  name       String
+  numOfLikes Int              @default(0)
+  date       DateTime         @default(now())
+  uploaderId Int
+  comments   Comment[]
+  likedBy    Likes[]
+  uploader   User             @relation("UploadedPhotos", fields: [uploaderId], references: [id])
+  groups     PhotosInGroups[]
+  tags       TagsOnPhotos[]
 
-  likedBy Likes[]   // Users who liked the photo
-  uploader      User      @relation("UploadedPhotos", fields: [uploaderId], references: [id])
-  uploaderId    Int
-  tags          TagsOnPhotos[] // Tags on the photo
-  comments      Comment[] // Comments on the photo
-  groups        PhotosInGroups[] // Groups the photo is in
+  @@index([uploaderId], map: "Photo_uploaderId_fkey")
 }
 
 model Likes {
-  user   User   @relation(fields: [userId], references: [id])
-  userId Int
-  photo  Photo  @relation(fields: [photoId], references: [id])
+  userId  Int
   photoId Int
+  photo   Photo @relation(fields: [photoId], references: [id])
+  user    User  @relation(fields: [userId], references: [id])
 
   @@id([userId, photoId])
+  @@index([photoId], map: "Likes_photoId_fkey")
 }
 
 model Tag {
-  id        Int       @id @default(autoincrement())
-  content   String
-  photos    TagsOnPhotos[] // Photos with the tag
+  id      Int            @id @default(autoincrement())
+  content String
+  photos  TagsOnPhotos[]
 }
 
 model Comment {
-  id        Int       @id @default(autoincrement())
-  content   String
-  photo     Photo     @relation(fields: [photoId], references: [id])
-  photoId   Int
-  author    User      @relation(fields: [authorId], references: [id])
-  authorId  Int
+  id       Int    @id @default(autoincrement())
+  content  String
+  photoId  Int
+  authorId Int
+  author   User   @relation(fields: [authorId], references: [id])
+  photo    Photo  @relation(fields: [photoId], references: [id])
+
+  @@index([authorId], map: "Comment_authorId_fkey")
+  @@index([photoId], map: "Comment_photoId_fkey")
 }
 
 model Group {
-  id           Int       @id @default(autoincrement())
-  name         String
-  manager      User      @relation("ManagerOfGroups", fields: [managerId], references: [id])
-  managerId    Int
-  users        UsersInGroups[] // Users in the group
-  photos       PhotosInGroups[] // Photos in the group
+  id        Int              @id @default(autoincrement())
+  name      String
+  managerId Int
+  manager   User             @relation("ManagerOfGroups", fields: [managerId], references: [id])
+  photos    PhotosInGroups[]
+  users     UsersInGroups[]
+
+  @@index([managerId], map: "Group_managerId_fkey")
 }
 
 model PhotosInGroups {
-  photo   Photo  @relation(fields: [photoId], references: [id])
   photoId Int
-  group  Group  @relation(fields: [groupId], references: [id])
   groupId Int
+  group   Group @relation(fields: [groupId], references: [id])
+  photo   Photo @relation(fields: [photoId], references: [id])
 
   @@id([photoId, groupId])
+  @@index([groupId], map: "PhotosInGroups_groupId_fkey")
 }
 
-model TagsOnPhotos{
-  tag Tag @relation(fields: [tagId], references: [id])
-  tagId Int
-  photo Photo @relation(fields: [photoId], references: [id])
+model TagsOnPhotos {
+  tagId   Int
   photoId Int
+  photo   Photo @relation(fields: [photoId], references: [id])
+  tag     Tag   @relation(fields: [tagId], references: [id])
 
   @@id([tagId, photoId])
+  @@index([photoId], map: "TagsOnPhotos_photoId_fkey")
 }
 
 enum Role {

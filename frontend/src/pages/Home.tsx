@@ -1,3 +1,5 @@
+import LogoutButton from "../ui/LogoutButton";
+
 export default function Home() {
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -44,9 +46,7 @@ export default function Home() {
 
         {/* Logout Button */}
         <div className="mt-4">
-          <button className="w-full rounded-lg bg-red-500 py-2 text-sm font-semibold text-white hover:bg-red-600">
-            Logout
-          </button>
+          <LogoutButton />
         </div>
       </aside>
 

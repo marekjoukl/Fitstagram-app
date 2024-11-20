@@ -12,13 +12,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) {
-      res.status(400).json({ message: "The user does not exist" });
+      res.status(400).json({ error: "The user does not exist" });
       return;
     }
     const isPasswordCorrect = await bcryptjs.compare(password, user.pwdHash);
 
     if (!isPasswordCorrect) {
-      res.status(400).json({ message: "Invalid credentials" });
+      res.status(400).json({ error: "Invalid credentials" });
       return;
     }
 
@@ -27,6 +27,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       id: user.id,
       username: user.username,
       nickname: user.nickname,
+      image: user.image,
       role: user.role,
     });
   } catch (error: any) {
@@ -39,12 +40,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   const { username, password, passwordConfirm, nickname } = req.body;
   try {
     if (!username || !password || !passwordConfirm || !nickname) {
-      res.status(400).json({ message: "All fields are required" });
+      res.status(400).json({ error: "All fields are required" });
       return;
     }
 
     if (password !== passwordConfirm) {
-      res.status(400).json({ message: "Passwords do not match" });
+      res.status(400).json({ error: "Passwords do not match" });
       return;
     }
 
@@ -59,11 +60,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
 
+    // https://avatar-placeholder.iran.liara.run/
+    const imagePlaceholder = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+
     const newUser = await prisma.user.create({
       data: {
         username,
         pwdHash: hashedPassword,
         nickname,
+        image: imagePlaceholder,
       },
     });
     if (newUser) {
@@ -74,14 +79,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           id: newUser.id,
           username: newUser.username,
           nickname: newUser.nickname,
+          image: newUser.image,
         },
       });
     } else {
-      res.status(400).json({ message: "Failed to register user" });
+      res.status(400).json({ error: "Failed to register user" });
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 export const logout = async (req: Request, res: Response) => {
@@ -108,6 +114,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       username: user.username,
       nickname: user.nickname,
       role: user.role,
+      image: user.image,
     });
   } catch (error: any) {
     console.log("Error in getMe controller", error.message);
