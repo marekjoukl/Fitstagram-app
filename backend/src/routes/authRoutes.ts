@@ -1,5 +1,12 @@
 import express from "express";
-import { login, register, logout } from "../controllers/authController.js";
+import { Request, Response } from "express";
+import {
+  login,
+  register,
+  logout,
+  getMe,
+} from "../controllers/authController.js";
+import protectRoute from "../middleware/protectRoute.js";
 
 const router = express.Router();
 
@@ -11,5 +18,7 @@ router.post("/login", login);
 
 // Route to log out a user
 router.post("/logout", logout);
+
+router.get("/me", protectRoute, getMe);
 
 export default router;
