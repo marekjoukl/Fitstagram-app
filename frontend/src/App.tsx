@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound"; // Import the NotFound component
 import { useAuthContext } from "./contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
 import EditProfile from "./pages/EditProfile";
+import AddPost from "./pages/AddPhoto";
 
 const App = () => {
   const { authUser, isLoading } = useAuthContext();
@@ -45,6 +46,10 @@ const App = () => {
         <Route
           path="/profile/:userId/edit"
           element={authUser ? <EditProfile /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/profile/:userId/add-post"
+          element={authUser ? <AddPost /> : <Navigate to="/login" />}
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

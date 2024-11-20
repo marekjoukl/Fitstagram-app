@@ -52,7 +52,10 @@ export default function Profile() {
         <div>
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-800">Your Posts</h2>
-            <button className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-600 hover:to-purple-600">
+            <button
+              onClick={() => navigate(`/profile/${authUser?.id}/add-post`)}
+              className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-600 hover:to-purple-600"
+            >
               Add New Post
             </button>
           </div>

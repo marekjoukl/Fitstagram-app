@@ -1,10 +1,12 @@
 import { useState } from "react";
 import useEditProfile from "../hooks/useEditProfile";
 import { useAuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function EditProfile() {
   const { authUser } = useAuthContext();
   const { editProfile, loading } = useEditProfile();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     nickname: authUser?.nickname || "",
@@ -24,8 +26,27 @@ export default function EditProfile() {
     editProfile(formData);
   };
 
+  const handleCancel = () => {
+    navigate("/profile");
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone.",
+    );
+    if (confirmed) {
+      try {
+        // Add your delete account logic here
+        alert("Account deleted"); // Placeholder for actual implementation
+        navigate("/"); // Redirect to homepage or login after deletion
+      } catch (error) {
+        console.error("Error deleting account:", error);
+      }
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-4">
       <div className="w-full max-w-lg rounded-lg bg-white p-8 shadow-lg">
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">
           Edit Profile
@@ -73,13 +94,30 @@ export default function EditProfile() {
             />
           </div>
 
-          {/* Submit Button */}
+          {/* Buttons */}
+          <div className="flex items-center justify-between space-x-4">
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600"
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+            <button
+              type="button"
+              className="w-full rounded-lg bg-gray-300 py-2 font-semibold text-gray-700 hover:bg-gray-400"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+          </div>
+
           <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600"
-            disabled={loading}
+            type="button"
+            className="mt-4 w-full rounded-lg bg-red-500 py-2 font-semibold text-white hover:bg-red-600"
+            onClick={handleDeleteAccount}
           >
-            {loading ? "Saving..." : "Save Changes"}
+            Delete Account
           </button>
         </form>
       </div>
