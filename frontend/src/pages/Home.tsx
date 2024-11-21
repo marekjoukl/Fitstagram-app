@@ -4,6 +4,7 @@ import { useAuthContext } from "../contexts/AuthContext";
 import LogoutButton from "../ui/LogoutButton";
 import useSearchUsers from "../hooks/useSearchUsers";
 import useAllPhotos from "../hooks/useAllPhotos";
+import useDeletePhoto from "../hooks/useDeletePhoto";
 import Post from "../ui/Post";
 import { Photo } from "../hooks/useUserPhotos";
 
@@ -12,9 +13,14 @@ export default function Home() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const { users, loading, error } = useSearchUsers(query);
-  
   const { photos, loadingPhotos } = useAllPhotos(authUser?.id);
+  const [allPhotos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const { deletePhoto } = useDeletePhoto();
+
+  useEffect(() => {
+    setPhotos(photos);
+  }, [photos]);
 
   const handleGoToProfile = () => {
     if (authUser) {
@@ -34,9 +40,17 @@ export default function Home() {
     setSelectedPhoto(null);
   };
 
-  const handleOverlayClick = (event: { target: any; currentTarget: any; }) => {
+  const handleOverlayClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget) {
       handleCloseOverlay();
+    }
+  };
+
+  const handleDelete = async (photoId: number) => {
+    const success = await deletePhoto(photoId);
+    if (success) {
+      setSelectedPhoto(null);
+      setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo.id !== photoId));
     }
   };
 
@@ -157,18 +171,18 @@ export default function Home() {
           {loadingPhotos ? (
             <p>Loading...</p>
           ) : (
-            photos.map((photo) => (
-                <div
-                  key={photo.id}
-                  className="aspect-square w-full rounded-lg bg-white shadow-md cursor-pointer"
-                  onClick={() => handlePhotoClick(photo)}
-                >
-                  <img
-                    src={photo.url}
-                    alt={photo.name}
-                    className="h-full w-full rounded-lg object-cover"
-                  />
-                </div>
+            allPhotos.map((photo) => (
+              <div
+                key={photo.id}
+                className="aspect-square w-full rounded-lg bg-white shadow-md cursor-pointer"
+                onClick={() => handlePhotoClick(photo)}
+              >
+                <img
+                  src={photo.url}
+                  alt={photo.name}
+                  className="h-full w-full rounded-lg object-cover"
+                />
+              </div>
             ))
           )}
         </div>
@@ -200,7 +214,7 @@ export default function Home() {
               onEdit={(id) => 
                 navigate(`/profile/${authUser?.id}/edit-photo/${id}`)
               }
-              onDelete={() => {}}
+              onDelete={handleDelete}
             />
           </div>
         </div>

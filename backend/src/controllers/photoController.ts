@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
+import { Role } from "@prisma/client";
+import { error } from "console";
 
 // Create a new photo
 export const createPhoto = async (req: Request, res: Response) => {
@@ -115,7 +117,7 @@ export const deletePhoto = async (req: Request, res: Response) => {
   try {
     const photo = await prisma.photo.findUnique({ where: { id: Number(id) } });
 
-    if (!photo || photo.uploaderId !== req.user.id) {
+    if (!photo || (photo.uploaderId !== req.user.id && req.user.role !== Role.ADMIN && req.user.role !== Role.MODERATOR)) {
       return res
         .status(403)
         .json({ error: "Unauthorized to delete this photo" });

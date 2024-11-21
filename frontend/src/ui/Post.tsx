@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthContext } from "../contexts/AuthContext";
 import usePhoto from "../hooks/useGetPhotoById";
+import { Role } from "@prisma/client";
 
 type PostProps = {
   photo: {
@@ -46,22 +47,26 @@ const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete }) => {
         />
 
         {/* Hover Actions */}
-        {authUser?.id === uploaderId && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 hover:opacity-100">
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 hover:opacity-100">
+          {(authUser?.id === uploaderId &&
             <button
               className="mr-2 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white shadow-md hover:bg-blue-600"
               onClick={() => onEdit(photo.id)}
             >
               Edit
             </button>
+          )}
+          {(authUser?.id === uploaderId || 
+            authUser?.role === Role.MODERATOR ||
+            authUser?.role === Role.ADMIN) && (
             <button
               className="rounded-lg bg-red-500 px-3 py-1 text-sm text-white shadow-md hover:bg-red-600"
               onClick={() => onDelete(photo.id)}
             >
               Delete
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Post Info */}
