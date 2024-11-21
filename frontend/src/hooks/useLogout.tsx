@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 const useLogout = () => {
   const [loading, setLoading] = useState(false);
   const { setAuthUser } = useAuthContext();
+  const { setUnregisteredUser } = useAuthContext();
 
   const logout = async () => {
     setLoading(true);
@@ -18,6 +19,7 @@ const useLogout = () => {
       }
 
       setAuthUser(null);
+      setUnregisteredUser(true);
     } catch (error: any) {
       console.error(error.message);
       toast.error(error.message);

@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 import LogoutButton from "../ui/LogoutButton";
+import LoginButton from "../ui/LoginButton";
 import useSearchUsers from "../hooks/useSearchUsers";
 import useSearchGroups from "../hooks/useSearchGroups";
 import useGetPhotos from "../hooks/useGetPhotos";
 import Popup from "../ui/Popup";
+import { ArrowDown } from "../ui/ArrowDown";
 
 type Photo = {
   id: number;
@@ -94,7 +96,8 @@ export default function Home() {
           </div>
 
           {/* User Info */}
-          <div className="mb-10 text-center">
+          {authUser ?
+          (<div className="mb-10 text-center">
             <img
               src={authUser?.image}
               alt="User Avatar"
@@ -112,9 +115,16 @@ export default function Home() {
               </p>
             </div>
           </div>
+          ) : (
+            <div className="mb-10 text-center">
+              <p className="text-center text-gray-500">You can browse public photos with limited functionality, for full access to FITstagram please login or register below.</p>
+              <ArrowDown />
+            </div>
+          )}
 
           {/* Navigation Buttons */}
-          <div className="flex flex-col space-y-4">
+          {authUser &&
+          (<div className="flex flex-col space-y-4">
             <button
               className="w-full rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-600"
               onClick={handleGoToProfile}
@@ -130,12 +140,16 @@ export default function Home() {
             <button className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
               Settings
             </button>
-          </div>
+          </div>)}
         </div>
 
-        {/* Logout Button */}
+        {/* Logout/Login Button */}
         <div className="mt-4">
-          <LogoutButton />
+          {authUser ? (
+            <LogoutButton />
+          ) : (
+            <LoginButton />
+          )}
         </div>
       </aside>
 

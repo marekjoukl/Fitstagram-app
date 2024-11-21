@@ -12,7 +12,7 @@ import EditPhoto from "./pages/EditPhoto";
 import CreateGroup from "./pages/CreateGroup";
 
 const App = () => {
-  const { authUser, isLoading } = useAuthContext();
+  const { authUser, isLoading, unregisteredUser } = useAuthContext();
 
   if (isLoading) {
     return (
@@ -27,7 +27,7 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={authUser ? <Home /> : <Navigate to="/login" />}
+          element={authUser || unregisteredUser ? <Home /> : <Navigate to="/login" />}
         />
         <Route
           path="/register"
@@ -39,29 +39,28 @@ const App = () => {
         />
         <Route
           path="/profile"
-          element={authUser ? <Profile /> : <Navigate to="/login" />}
+          element={authUser ? <Profile /> : <Navigate to="/" />}
         />
         <Route
           path="/profile/:userId"
-          element={authUser ? <Profile /> : <Navigate to="/login" />}
+          element={authUser ? <Profile /> : <Navigate to="/" />}
         />
         <Route
           path="/profile/:userId/edit"
-          element={authUser ? <EditProfile /> : <Navigate to="/login" />}
+          element={authUser ? <EditProfile /> : <Navigate to="/" />}
         />
         <Route
           path="/profile/:userId/edit-photo/:photoId"
-          element={authUser ? <EditPhoto /> : <Navigate to="/login" />}
+          element={authUser ? <EditPhoto /> : <Navigate to="/" />}
         />
         <Route
           path="/profile/:userId/add-post"
-          element={authUser ? <AddPost /> : <Navigate to="/login" />}
+          element={authUser ? <AddPost /> : <Navigate to="/" />}
         />
-        <Route 
-          path="/group/create" 
-          element={authUser ? <CreateGroup /> : <Navigate to="/login" />} 
+        <Route
+          path="*"
+          element={<NotFound />}
         />
-        <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
     </div>

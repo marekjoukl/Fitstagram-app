@@ -8,17 +8,17 @@ datasource db {
 }
 
 model User {
-  id            Int             @id @default(autoincrement())
-  username      String          @unique
+  id            Int                    @id @default(autoincrement())
+  username      String                 @unique
   pwdHash       String
   nickname      String
   image         String
-  role          Role            @default(USER)
+  role          Role                   @default(LOGGED_USER)
   description   String?
   comments      Comment[]
-  managesGroups Group[]         @relation("ManagerOfGroups")
+  managesGroups Group[]                @relation("ManagerOfGroups")
   likedPhotos   Likes[]
-  photos        Photo[]         @relation("UploadedPhotos")
+  photos        Photo[]                @relation("UploadedPhotos")
   groups        UsersInGroups[]
   canSeePhotos  UsersWhoCanSeePhotos[]
 }
@@ -26,10 +26,11 @@ model User {
 model UsersWhoCanSeePhotos {
   userId  Int
   photoId Int
-  user    User   @relation(fields: [userId], references: [id])
-  photo   Photo  @relation(fields: [photoId], references: [id])
+  photo   Photo @relation(fields: [photoId], references: [id])
+  user    User  @relation(fields: [userId], references: [id])
 
   @@id([userId, photoId])
+  @@index([photoId], map: "UsersWhoCanSeePhotos_photoId_fkey")
 }
 
 model UsersInGroups {
@@ -43,16 +44,16 @@ model UsersInGroups {
 }
 
 model Photo {
-  id          Int              @id @default(autoincrement())
+  id          Int                    @id @default(autoincrement())
   name        String
-  numOfLikes  Int              @default(0)
-  date        DateTime         @default(now())
+  numOfLikes  Int                    @default(0)
+  date        DateTime               @default(now())
   uploaderId  Int
   description String?
   url         String
   comments    Comment[]
   likedBy     Likes[]
-  uploader    User             @relation("UploadedPhotos", fields: [uploaderId], references: [id])
+  uploader    User                   @relation("UploadedPhotos", fields: [uploaderId], references: [id])
   groups      PhotosInGroups[]
   tags        TagsOnPhotos[]
   visibleTo   UsersWhoCanSeePhotos[]
