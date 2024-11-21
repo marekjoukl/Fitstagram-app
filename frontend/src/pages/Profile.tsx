@@ -95,6 +95,8 @@ export default function Profile() {
                   numOfLikes: photo.numOfLikes || 0,
                   numOfComments: photo.comments?.length || 0,
                   date: photo.date,
+                  uploaderId: photo.uploaderId,
+                  uploader: { nickname: photo.uploader.nickname },
                 }}
                 onEdit={(id) =>
                   navigate(`/profile/${authUser?.id}/edit-photo/${id}`)

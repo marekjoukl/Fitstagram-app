@@ -27,7 +27,7 @@ export const getPhotos = async (_req: Request, res: Response) => {
   try {
     const photos = await prisma.photo.findMany({
       include: {
-        uploader: { select: { username: true } },
+        uploader: { select: { nickname: true } },
       },
       orderBy: { date: "desc" },
     });
@@ -45,7 +45,7 @@ export const getPhotosById = async (req: Request, res: Response) => {
     const photos = await prisma.photo.findMany({
       where: { uploaderId: Number(id) },
       include: {
-        uploader: { select: { username: true } },
+        uploader: { select: { nickname: true } },
       },
     });
 
@@ -67,7 +67,7 @@ export const getPhotoById = async (req: Request, res: Response) => {
     const photo = await prisma.photo.findUnique({
       where: { id: Number(id) },
       include: {
-        uploader: { select: { username: true } },
+        uploader: { select: { nickname: true } },
       },
     });
 

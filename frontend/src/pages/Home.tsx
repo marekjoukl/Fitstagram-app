@@ -4,14 +4,40 @@ import { useAuthContext } from "../contexts/AuthContext";
 import LogoutButton from "../ui/LogoutButton";
 import useSearchUsers from "../hooks/useSearchUsers";
 import useSearchGroups from "../hooks/useSearchGroups";
+import useGetPhotos from "../hooks/useGetPhotos";
+import Popup from "../ui/Popup";
+
+type Photo = {
+  id: number;
+  name: string;
+  description?: string; // Optional property
+  url: string;
+  numOfLikes: number;
+  numOfComments: number;
+  date: string;
+  uploader: {
+    nickname: string;
+  };
+};
 
 export default function Home() {
   const { authUser } = useAuthContext();
   const navigate = useNavigate();
   const [userQuery, setUserQuery] = useState("");
   const [groupQuery, setGroupQuery] = useState("");
-  const { users, loading: loadingUsers, error: errorUsers } = useSearchUsers(userQuery);
-  const { groups, loading: loadingGroups, error: errorGroups } = useSearchGroups(groupQuery);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+
+  const {
+    users,
+    loading: loadingUsers,
+    error: errorUsers,
+  } = useSearchUsers(userQuery);
+  const {
+    groups,
+    loading: loadingGroups,
+    error: errorGroups,
+  } = useSearchGroups(groupQuery);
+  const { photos, loading: photosLoading, error: photosError } = useGetPhotos();
 
   const handleGoToProfile = () => {
     if (authUser) {
@@ -19,17 +45,39 @@ export default function Home() {
     }
   };
 
-  const handleUserSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUserSearchChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setUserQuery(event.target.value);
   };
 
-  const handleGroupSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGroupSearchChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setGroupQuery(event.target.value);
   };
 
   const handleCreateGroup = () => {
     navigate(`/group/create`);
   };
+
+  const handlePhotoClick = (photo: Photo) => {
+    setSelectedPhoto(photo);
+  };
+
+  const closePopup = () => {
+    setSelectedPhoto(null);
+  };
+
+  const formattedDate = selectedPhoto
+    ? new Date(selectedPhoto.date).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+      })
+    : "Unknown Date";
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -96,7 +144,7 @@ export default function Home() {
         {/* Top Bar */}
         <div className="mb-8 flex items-center justify-between">
           {/* User Search Bar */}
-          <div className="relative w-1/2 mr-4">
+          <div className="relative mr-4 w-1/2">
             <div className="flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -122,7 +170,7 @@ export default function Home() {
               {userQuery && (
                 <button
                   type="button"
-                  onClick={() => setUserQuery('')}
+                  onClick={() => setUserQuery("")}
                   className="absolute right-3 text-gray-400 hover:text-gray-600"
                 >
                   <svg
@@ -194,7 +242,7 @@ export default function Home() {
               {groupQuery && (
                 <button
                   type="button"
-                  onClick={() => setGroupQuery('')}
+                  onClick={() => setGroupQuery("")}
                   className="absolute right-3 text-gray-400 hover:text-gray-600"
                 >
                   <svg
@@ -218,7 +266,9 @@ export default function Home() {
             {groupQuery && (
               <div className="absolute mt-2 w-full rounded-lg bg-white shadow-lg">
                 {loadingGroups && <p className="p-4">Loading...</p>}
-                {errorGroups && <p className="p-4 text-red-500">{errorGroups}</p>}
+                {errorGroups && (
+                  <p className="p-4 text-red-500">{errorGroups}</p>
+                )}
                 {groups.map((group) => (
                   <div
                     key={group.id}
@@ -234,26 +284,130 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Add Photo Button */}
-        <button className="ml-4 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-2 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-600 hover:to-purple-600">
-          Add Photo
-        </button>
-
         {/* Posts Grid */}
-        <div className="grid grid-cols-3 gap-6">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <div
-              key={index}
-              className="aspect-square w-full rounded-lg bg-white shadow-md"
-            >
-              <img
-                src="https://via.placeholder.com/200"
-                alt={`Post ${index + 1}`}
-                className="h-full w-full rounded-lg object-cover"
-              />
+        {photosLoading ? (
+          <p>Loading posts...</p>
+        ) : photosError ? (
+          <p className="text-red-500">{photosError}</p>
+        ) : (
+          <div className="grid grid-cols-3 gap-6">
+            {photos.map((photo: Photo) => (
+              <div
+                key={photo.id}
+                className="group relative aspect-square cursor-pointer rounded-lg bg-white shadow-md"
+                onClick={() => handlePhotoClick(photo)}
+              >
+                {/* Image */}
+                <img
+                  src={photo.url}
+                  alt={photo.name}
+                  className="h-full w-full rounded-lg object-cover group-hover:opacity-75"
+                />
+                {/* Overlay with Info */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <h3 className="text-lg font-semibold text-white">
+                    {photo.name}
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-300">
+                    By {photo.uploader.nickname}
+                  </p>
+                  <div className="mt-4 flex space-x-4 text-white">
+                    <p>❤️ {photo.numOfLikes}</p>
+                    <p>💬 {photo.numOfComments}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Popup */}
+        {selectedPhoto && (
+          <Popup isOpen={selectedPhoto !== null} onClose={closePopup}>
+            <div className="flex">
+              {/* Left Section: Photo Details */}
+              <div className="w-1/2 p-6">
+                <h2 className="mb-4 text-2xl font-bold text-gray-800">
+                  {selectedPhoto.name}
+                </h2>
+                <img
+                  src={selectedPhoto.url}
+                  alt={selectedPhoto.name}
+                  className="mb-4 h-64 w-full rounded-lg object-cover"
+                />
+                <p className="mb-2 text-sm text-gray-600">
+                  <span className="font-semibold">Uploaded by:</span>{" "}
+                  {selectedPhoto.uploader.nickname}
+                </p>
+                <p className="mb-2 text-sm text-gray-600">
+                  <span className="font-semibold">Uploaded on:</span>{" "}
+                  {formattedDate}
+                </p>
+                <p className="mb-4 text-sm text-gray-600">
+                  {selectedPhoto.description}
+                </p>
+                <p className="mb-4 text-sm font-semibold text-gray-800">
+                  ❤️ {selectedPhoto.numOfLikes} Likes
+                </p>
+              </div>
+
+              {/* Right Section: Comments */}
+              <div className="w-1/2 border-l p-6">
+                <h3 className="mb-4 text-lg font-bold text-gray-800">
+                  Comments ({selectedPhoto.numOfComments})
+                </h3>
+                <div className="space-y-4 overflow-y-auto">
+                  {/* Dummy Comments */}
+                  <div className="flex items-start">
+                    <img
+                      src="https://via.placeholder.com/40"
+                      alt="User Avatar"
+                      className="mr-3 h-10 w-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        John Doe
+                      </p>
+                      <p className="mt-1 text-sm text-gray-600">
+                        Amazing photo! Love the composition.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <img
+                      src="https://via.placeholder.com/40"
+                      alt="User Avatar"
+                      className="mr-3 h-10 w-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        Jane Smith
+                      </p>
+                      <p className="mt-1 text-sm text-gray-600">
+                        The colors are stunning!
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <img
+                      src="https://via.placeholder.com/40"
+                      alt="User Avatar"
+                      className="mr-3 h-10 w-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        Alice Brown
+                      </p>
+                      <p className="mt-1 text-sm text-gray-600">
+                        Where was this taken? It's beautiful!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
+          </Popup>
+        )}
       </main>
     </div>
   );

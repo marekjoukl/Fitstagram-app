@@ -7,6 +7,9 @@ interface Photo {
   url: string;
   numOfLikes: number;
   date: string; // Date is usually serialized as a string in JSON responses
+  uploader: {
+    nickname: string;
+  };
   uploaderId: number;
   comments: [];
 }
