@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")  
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -13,13 +13,23 @@ model User {
   pwdHash       String
   nickname      String
   image         String
-  description   String?
   role          Role            @default(USER)
+  description   String?
   comments      Comment[]
   managesGroups Group[]         @relation("ManagerOfGroups")
   likedPhotos   Likes[]
   photos        Photo[]         @relation("UploadedPhotos")
   groups        UsersInGroups[]
+  canSeePhotos  UsersWhoCanSeePhotos[]
+}
+
+model UsersWhoCanSeePhotos {
+  userId  Int
+  photoId Int
+  user    User   @relation(fields: [userId], references: [id])
+  photo   Photo  @relation(fields: [photoId], references: [id])
+
+  @@id([userId, photoId])
 }
 
 model UsersInGroups {
@@ -33,18 +43,19 @@ model UsersInGroups {
 }
 
 model Photo {
-  id         Int              @id @default(autoincrement())
-  name       String
+  id          Int              @id @default(autoincrement())
+  name        String
+  numOfLikes  Int              @default(0)
+  date        DateTime         @default(now())
+  uploaderId  Int
   description String?
-  url        String
-  numOfLikes Int              @default(0)
-  date       DateTime         @default(now())
-  uploaderId Int
-  comments   Comment[]
-  likedBy    Likes[]
-  uploader   User             @relation("UploadedPhotos", fields: [uploaderId], references: [id])
-  groups     PhotosInGroups[]
-  tags       TagsOnPhotos[]
+  url         String
+  comments    Comment[]
+  likedBy     Likes[]
+  uploader    User             @relation("UploadedPhotos", fields: [uploaderId], references: [id])
+  groups      PhotosInGroups[]
+  tags        TagsOnPhotos[]
+  visibleTo   UsersWhoCanSeePhotos[]
 
   @@index([uploaderId], map: "Photo_uploaderId_fkey")
 }
