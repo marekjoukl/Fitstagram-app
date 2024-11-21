@@ -8,6 +8,11 @@ import {
   getPhotoById,
 } from "../controllers/photoController.js";
 import protectRoute from "../middleware/protectRoute.js";
+import {
+  addComment,
+  deleteComment,
+  getComments,
+} from "../controllers/commentsController.js";
 
 const router = express.Router();
 
@@ -31,5 +36,16 @@ router.put("/:id", protectRoute, updatePhoto);
 // Route to delete a photo
 // @ts-ignore
 router.delete("/:id", protectRoute, deletePhoto);
+
+// Route to fetch comments for a photo
+router.get("/:photoId/comments", getComments);
+
+// Route to add a comment to a photo
+// @ts-ignore
+router.post("/:photoId/comments", protectRoute, addComment);
+
+// Route to delete a comment
+// @ts-ignore
+router.delete("/comments/:commentId", deleteComment);
 
 export default router;

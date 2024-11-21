@@ -28,10 +28,17 @@ export const getPhotos = async (_req: Request, res: Response) => {
     const photos = await prisma.photo.findMany({
       include: {
         uploader: { select: { nickname: true } },
+        _count: { select: { comments: true } },
       },
       orderBy: { date: "desc" },
     });
-    res.status(200).json(photos);
+
+    const photosWithCommentCount = photos.map((photo) => ({
+      ...photo,
+      numOfComments: photo._count.comments, // Attach comment count
+    }));
+
+    res.status(200).json(photosWithCommentCount);
   } catch (error) {
     console.error("Error fetching photos:", error);
     res.status(500).json({ error: "Internal Server Error" });

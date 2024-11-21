@@ -12,7 +12,7 @@ import { ArrowDown } from "../ui/ArrowDown";
 type Photo = {
   id: number;
   name: string;
-  description?: string; // Optional property
+  description?: string;
   url: string;
   numOfLikes: number;
   numOfComments: number;
@@ -39,7 +39,12 @@ export default function Home() {
     loading: loadingGroups,
     error: errorGroups,
   } = useSearchGroups(groupQuery);
-  const { photos, loading: photosLoading, error: photosError } = useGetPhotos();
+  const {
+    photos,
+    loading: photosLoading,
+    error: photosError,
+    fetchPhotos,
+  } = useGetPhotos();
 
   const handleGoToProfile = () => {
     if (authUser) {
@@ -71,15 +76,9 @@ export default function Home() {
     setSelectedPhoto(null);
   };
 
-  const formattedDate = selectedPhoto
-    ? new Date(selectedPhoto.date).toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-      })
-    : "Unknown Date";
+  const handleCommentsUpdate = () => {
+    fetchPhotos();
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -337,90 +336,12 @@ export default function Home() {
 
         {/* Popup */}
         {selectedPhoto && (
-          <Popup isOpen={selectedPhoto !== null} onClose={closePopup}>
-            <div className="flex">
-              {/* Left Section: Photo Details */}
-              <div className="w-1/2 p-6">
-                <h2 className="mb-4 text-2xl font-bold text-gray-800">
-                  {selectedPhoto.name}
-                </h2>
-                <img
-                  src={selectedPhoto.url}
-                  alt={selectedPhoto.name}
-                  className="mb-4 h-64 w-full rounded-lg object-cover"
-                />
-                <p className="mb-2 text-sm text-gray-600">
-                  <span className="font-semibold">Uploaded by:</span>{" "}
-                  {selectedPhoto.uploader.nickname}
-                </p>
-                <p className="mb-2 text-sm text-gray-600">
-                  <span className="font-semibold">Uploaded on:</span>{" "}
-                  {formattedDate}
-                </p>
-                <p className="mb-4 text-sm text-gray-600">
-                  {selectedPhoto.description}
-                </p>
-                <p className="mb-4 text-sm font-semibold text-gray-800">
-                  ❤️ {selectedPhoto.numOfLikes} Likes
-                </p>
-              </div>
-
-              {/* Right Section: Comments */}
-              <div className="w-1/2 border-l p-6">
-                <h3 className="mb-4 text-lg font-bold text-gray-800">
-                  Comments ({selectedPhoto.numOfComments})
-                </h3>
-                <div className="space-y-4 overflow-y-auto">
-                  {/* Dummy Comments */}
-                  <div className="flex items-start">
-                    <img
-                      src="https://via.placeholder.com/40"
-                      alt="User Avatar"
-                      className="mr-3 h-10 w-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">
-                        John Doe
-                      </p>
-                      <p className="mt-1 text-sm text-gray-600">
-                        Amazing photo! Love the composition.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <img
-                      src="https://via.placeholder.com/40"
-                      alt="User Avatar"
-                      className="mr-3 h-10 w-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">
-                        Jane Smith
-                      </p>
-                      <p className="mt-1 text-sm text-gray-600">
-                        The colors are stunning!
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <img
-                      src="https://via.placeholder.com/40"
-                      alt="User Avatar"
-                      className="mr-3 h-10 w-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">
-                        Alice Brown
-                      </p>
-                      <p className="mt-1 text-sm text-gray-600">
-                        Where was this taken? It's beautiful!
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Popup>
+          <Popup
+            isOpen={selectedPhoto !== null}
+            onClose={closePopup}
+            photo={selectedPhoto}
+            onUpdateComments={handleCommentsUpdate}
+          />
         )}
       </main>
     </div>

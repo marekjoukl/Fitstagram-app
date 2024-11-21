@@ -18,29 +18,26 @@ const useGetPhotos = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchPhotos = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/photos");
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch photos");
-        }
-
-        setPhotos(data);
-      } catch (error: any) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+  const fetchPhotos = async () => {
+    try {
+      const res = await fetch("/api/photos");
+      if (!res.ok) {
+        throw new Error("Failed to fetch photos");
       }
-    };
+      const data = await res.json();
+      setPhotos(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPhotos();
   }, []);
 
-  return { photos, loading, error };
+  return { photos, loading, error, fetchPhotos };
 };
 
 export default useGetPhotos;
