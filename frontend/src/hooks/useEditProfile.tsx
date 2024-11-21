@@ -17,7 +17,7 @@ const useEditProfile = () => {
   const editProfile = async (inputs: ProfileInputs) => {
     try {
       setLoading(true);
-      const res = await fetch("/api/auth/me", {
+      const res = await fetch("/api/users/me", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(inputs),

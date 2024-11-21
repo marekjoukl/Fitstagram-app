@@ -38,7 +38,28 @@ export const getPhotos = async (_req: Request, res: Response) => {
   }
 };
 
-// Get a single photo by ID
+export const getPhotosById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const photos = await prisma.photo.findMany({
+      where: { uploaderId: Number(id) },
+      include: {
+        uploader: { select: { username: true } },
+      },
+    });
+
+    if (!photos) {
+      return res.status(404).json({ error: "Photo not found" });
+    }
+
+    res.status(200).json(photos);
+  } catch (error) {
+    console.error("Error fetching photo:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const getPhotoById = async (req: Request, res: Response) => {
   const { id } = req.params;
 

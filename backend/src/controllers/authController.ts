@@ -116,6 +116,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       nickname: user.nickname,
       role: user.role,
       image: user.image,
+      description: user.description,
     });
   } catch (error: any) {
     console.log("Error in getMe controller", error.message);
@@ -128,6 +129,7 @@ export const updateProfile = async (
   res: Response
 ): Promise<void> => {
   const { nickname, image, description } = req.body;
+  console.log(req.body);
 
   try {
     // Check if user exists
@@ -146,6 +148,7 @@ export const updateProfile = async (
         description,
       },
     });
+    console.log(updatedUser);
 
     res.status(200).json({
       message: "Profile updated successfully",

@@ -2,9 +2,10 @@ import express from "express";
 import {
   createPhoto,
   getPhotos,
-  getPhotoById,
+  getPhotosById,
   updatePhoto,
   deletePhoto,
+  getPhotoById,
 } from "../controllers/photoController.js";
 import protectRoute from "../middleware/protectRoute.js";
 
@@ -16,7 +17,10 @@ router.post("/", protectRoute, createPhoto);
 // Route to get all photos
 router.get("/", getPhotos);
 
-// Route to get a single photo by ID
+// Route to get photos by user ID
+// @ts-ignore
+router.get("/profile/:id", getPhotosById);
+
 // @ts-ignore
 router.get("/:id", getPhotoById);
 

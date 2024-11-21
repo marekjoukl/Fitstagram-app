@@ -8,6 +8,7 @@ import { useAuthContext } from "./contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
 import EditProfile from "./pages/EditProfile";
 import AddPost from "./pages/AddPhoto";
+import EditPhoto from "./pages/EditPhoto";
 
 const App = () => {
   const { authUser, isLoading } = useAuthContext();
@@ -46,6 +47,10 @@ const App = () => {
         <Route
           path="/profile/:userId/edit"
           element={authUser ? <EditProfile /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/profile/:userId/edit-photo/:photoId"
+          element={authUser ? <EditPhoto /> : <Navigate to="/login" />}
         />
         <Route
           path="/profile/:userId/add-post"
