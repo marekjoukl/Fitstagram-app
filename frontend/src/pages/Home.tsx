@@ -1,14 +1,23 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 import LogoutButton from "../ui/LogoutButton";
+import useSearchUsers from "../hooks/useSearchUsers";
 
 export default function Home() {
   const { authUser } = useAuthContext();
   const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const { users, loading, error } = useSearchUsers(query);
+
   const handleGoToProfile = () => {
     if (authUser) {
       navigate(`/profile/${authUser.id}`);
     }
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
   };
 
   return (
@@ -74,6 +83,8 @@ export default function Home() {
             <input
               type="text"
               placeholder="Search..."
+              value={query}
+              onChange={handleSearchChange}
               className="block w-full rounded-full border border-gray-300 bg-white px-4 py-2 pl-10 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
             <svg
@@ -90,6 +101,29 @@ export default function Home() {
                 d="M21 21l-4.35-4.35M15.5 10a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"
               />
             </svg>
+            {/* Search Results */}
+            {query && (
+              <div className="absolute mt-2 w-full rounded-lg bg-white shadow-lg">
+                {loading && <p className="p-4">Loading...</p>}
+                {error && <p className="p-4 text-red-500">{error}</p>}
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center p-4 hover:bg-gray-100"
+                  >
+                    <img
+                      src={user.image}
+                      alt={user.username}
+                      className="h-10 w-10 rounded-full"
+                    />
+                    <div className="ml-4">
+                      <p className="text-sm font-semibold">{user.username}</p>
+                      <p className="text-sm text-gray-500">{user.nickname}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Add Photo Button */}
