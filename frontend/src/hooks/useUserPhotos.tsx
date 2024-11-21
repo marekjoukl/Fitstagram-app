@@ -8,6 +8,7 @@ interface Photo {
   numOfLikes: number;
   date: string; // Date is usually serialized as a string in JSON responses
   uploaderId: number;
+  comments: [];
 }
 
 const useUserPhotos = (id: number | undefined) => {

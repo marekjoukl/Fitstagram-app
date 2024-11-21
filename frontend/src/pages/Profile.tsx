@@ -3,6 +3,7 @@ import { useAuthContext } from "../contexts/AuthContext";
 import useUserPhotos from "../hooks/useUserPhotos";
 import useDeletePhoto from "../hooks/useDeletePhoto";
 import { useEffect, useState } from "react";
+import Post from "../ui/Post";
 
 export default function Profile() {
   const { authUser } = useAuthContext();
@@ -84,37 +85,25 @@ export default function Profile() {
           </div>
           <div className="grid grid-cols-3 gap-6">
             {photos.map((photo) => (
-              <div
+              <Post
                 key={photo.id}
-                className="relative aspect-square rounded-lg bg-white shadow-md"
-              >
-                <img
-                  src={photo.url}
-                  alt={photo.name}
-                  className="h-full w-full rounded-lg object-cover"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition hover:opacity-100">
-                  <button
-                    className="mr-2 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white shadow-md hover:bg-blue-600"
-                    onClick={() =>
-                      navigate(
-                        `/profile/${authUser?.id}/edit-photo/${photo.id}`,
-                      )
-                    }
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="mr-2 rounded-lg bg-red-500 px-3 py-1 text-sm text-white shadow-md hover:bg-red-600"
-                    onClick={() => handleDelete(photo.id)}
-                    disabled={loadingDelete}
-                  >
-                    {loadingDelete ? "Deleting..." : "Delete"}
-                  </button>
-                </div>
-              </div>
+                photo={{
+                  id: photo.id,
+                  name: photo.name,
+                  description: photo.description,
+                  url: photo.url,
+                  numOfLikes: photo.numOfLikes || 0,
+                  numOfComments: photo.comments?.length || 0,
+                  date: photo.date,
+                }}
+                onEdit={(id) =>
+                  navigate(`/profile/${authUser?.id}/edit-photo/${id}`)
+                }
+                onDelete={handleDelete}
+              />
             ))}
           </div>
+          ;
         </div>
       </div>
     </div>
