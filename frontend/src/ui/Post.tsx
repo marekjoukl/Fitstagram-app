@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useAuthContext } from "../contexts/AuthContext";
+import usePhoto from "../hooks/useGetPhotoById";
 
 type PostProps = {
   photo: {
@@ -15,6 +17,16 @@ type PostProps = {
 };
 
 const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete }) => {
+  const { authUser } = useAuthContext();
+  const { photo: fetchedPhoto } = usePhoto(photo.id);
+  const [uploaderId, setUploaderId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (fetchedPhoto) {
+      setUploaderId(fetchedPhoto.uploaderId);
+    }
+  }, [fetchedPhoto]);
+
   const formattedDate = new Date(photo.date).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -34,20 +46,22 @@ const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete }) => {
         />
 
         {/* Hover Actions */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 hover:opacity-100">
-          <button
-            className="mr-2 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white shadow-md hover:bg-blue-600"
-            onClick={() => onEdit(photo.id)}
-          >
-            Edit
-          </button>
-          <button
-            className="rounded-lg bg-red-500 px-3 py-1 text-sm text-white shadow-md hover:bg-red-600"
-            onClick={() => onDelete(photo.id)}
-          >
-            Delete
-          </button>
-        </div>
+        {authUser?.id === uploaderId && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 hover:opacity-100">
+            <button
+              className="mr-2 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white shadow-md hover:bg-blue-600"
+              onClick={() => onEdit(photo.id)}
+            >
+              Edit
+            </button>
+            <button
+              className="rounded-lg bg-red-500 px-3 py-1 text-sm text-white shadow-md hover:bg-red-600"
+              onClick={() => onDelete(photo.id)}
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Post Info */}

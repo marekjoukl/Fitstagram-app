@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 import LogoutButton from "../ui/LogoutButton";
 import useSearchUsers from "../hooks/useSearchUsers";
+import useAllPhotos from "../hooks/useAllPhotos";
+import Post from "../ui/Post";
+import { Photo } from "../hooks/useUserPhotos";
 
 export default function Home() {
   const { authUser } = useAuthContext();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const { users, loading, error } = useSearchUsers(query);
+  
+  const { photos, loadingPhotos } = useAllPhotos(authUser?.id);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   const handleGoToProfile = () => {
     if (authUser) {
@@ -18,6 +24,20 @@ export default function Home() {
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
+  };
+
+  const handlePhotoClick = (photo: Photo) => {
+    setSelectedPhoto(photo);
+  };
+
+  const handleCloseOverlay = () => {
+    setSelectedPhoto(null);
+  };
+
+  const handleOverlayClick = (event: { target: any; currentTarget: any; }) => {
+    if (event.target === event.currentTarget) {
+      handleCloseOverlay();
+    }
   };
 
   return (
@@ -134,20 +154,57 @@ export default function Home() {
 
         {/* Posts Grid */}
         <div className="grid grid-cols-3 gap-6">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <div
-              key={index}
-              className="aspect-square w-full rounded-lg bg-white shadow-md"
-            >
-              <img
-                src="https://via.placeholder.com/200"
-                alt={`Post ${index + 1}`}
-                className="h-full w-full rounded-lg object-cover"
-              />
-            </div>
-          ))}
+          {loadingPhotos ? (
+            <p>Loading...</p>
+          ) : (
+            photos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="aspect-square w-full rounded-lg bg-white shadow-md cursor-pointer"
+                  onClick={() => handlePhotoClick(photo)}
+                >
+                  <img
+                    src={photo.url}
+                    alt={photo.name}
+                    className="h-full w-full rounded-lg object-cover"
+                  />
+                </div>
+            ))
+          )}
         </div>
       </main>
+
+      {/* Photo Overlay */}
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+          onClick={handleOverlayClick}
+        >
+          <div className="relative bg-white p-4 rounded-lg shadow-lg">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 p-2 rounded-full bg-white hover:bg-gray-300"
+              onClick={handleCloseOverlay}
+            >
+              &times;
+            </button>
+            <Post
+              photo={{
+                id: selectedPhoto.id,
+                name: selectedPhoto.name,
+                description: selectedPhoto.description ?? '',
+                url: selectedPhoto.url,
+                numOfLikes: selectedPhoto.numOfLikes || 0,
+                numOfComments: selectedPhoto.comments?.length || 0,
+                date: selectedPhoto.date,
+              }}
+              onEdit={(id) => 
+                navigate(`/profile/${authUser?.id}/edit-photo/${id}`)
+              }
+              onDelete={() => {}}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
