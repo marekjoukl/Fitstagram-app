@@ -103,7 +103,10 @@ export const logout = async (req: Request, res: Response) => {
 
 export const getMe = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      include: { photos: true, groups: true },
+    });
 
     if (!user) {
       res.status(404).json({ error: "User not found" });
@@ -117,6 +120,8 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       role: user.role,
       image: user.image,
       description: user.description,
+      photos: user.photos,
+      groups: user.groups,
     });
   } catch (error: any) {
     console.log("Error in getMe controller", error.message);
@@ -148,7 +153,6 @@ export const updateProfile = async (
         description,
       },
     });
-    console.log(updatedUser);
 
     res.status(200).json({
       message: "Profile updated successfully",

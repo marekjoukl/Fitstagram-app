@@ -95,60 +95,66 @@ export default function Home() {
           </div>
 
           {/* User Info */}
-          {authUser ?
-          (<div className="mb-10 text-center">
-            <img
-              src={authUser?.image}
-              alt="User Avatar"
-              className="mx-auto mb-4 h-24 w-24 rounded-full shadow-lg"
-            />
-            <h2 className="text-xl font-semibold text-gray-800">
-              {authUser?.nickname}
-            </h2>
-            <div className="mt-2 text-sm text-gray-500">
-              <p>
-                Posts: <span className="font-medium text-gray-700">42</span>
-              </p>
-              <p>
-                Groups: <span className="font-medium text-gray-700">5</span>
-              </p>
+          {authUser ? (
+            <div className="mb-10 text-center">
+              <img
+                src={authUser?.image}
+                alt="User Avatar"
+                className="mx-auto mb-4 h-24 w-24 rounded-full shadow-lg"
+              />
+              <h2 className="text-xl font-semibold text-gray-800">
+                {authUser?.nickname}
+              </h2>
+              <div className="mt-2 text-sm text-gray-500">
+                <p>
+                  Posts:{" "}
+                  <span className="font-medium text-gray-700">
+                    {authUser.photos.length}
+                  </span>
+                </p>
+                <p>
+                  Groups:{" "}
+                  <span className="font-medium text-gray-700">
+                    {authUser.groups.length}
+                  </span>
+                </p>
+              </div>
             </div>
-          </div>
           ) : (
             <div className="mb-10 text-center">
-              <p className="text-center text-gray-500">You can browse public photos with limited functionality, for full access to FITstagram please login or register below.</p>
+              <p className="text-center text-gray-500">
+                You can browse public photos with limited functionality, for
+                full access to FITstagram please login or register below.
+              </p>
               <ArrowDown />
             </div>
           )}
 
           {/* Navigation Buttons */}
-          {authUser &&
-          (<div className="flex flex-col space-y-4">
-            <button
-              className="w-full rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-600"
-              onClick={handleGoToProfile}
-            >
-              Go to Profile
-            </button>
-            <button
-              className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
-              onClick={handleCreateGroup}
-            >
-              Create Group
-            </button>
-            <button className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
-              Settings
-            </button>
-          </div>)}
+          {authUser && (
+            <div className="flex flex-col space-y-4">
+              <button
+                className="w-full rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-600"
+                onClick={handleGoToProfile}
+              >
+                Go to Profile
+              </button>
+              <button
+                className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+                onClick={handleCreateGroup}
+              >
+                Create Group
+              </button>
+              <button className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
+                Settings
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Logout/Login Button */}
         <div className="mt-4">
-          {authUser ? (
-            <LogoutButton />
-          ) : (
-            <LoginButton />
-          )}
+          {authUser ? <LogoutButton /> : <LoginButton />}
         </div>
       </aside>
 
