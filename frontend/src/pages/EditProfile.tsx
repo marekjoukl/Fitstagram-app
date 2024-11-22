@@ -27,7 +27,7 @@ export default function EditProfile() {
   };
 
   const handleCancel = () => {
-    navigate("/profile");
+    navigate("/myProfile");
   };
 
   const handleDeleteAccount = async () => {
