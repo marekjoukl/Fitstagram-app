@@ -19,6 +19,7 @@ type Photo = {
   date: string;
   uploader: {
     nickname: string;
+    id: number;
   };
 };
 
@@ -48,7 +49,7 @@ export default function Home() {
 
   const handleGoToProfile = () => {
     if (authUser) {
-      navigate(`/profile/${authUser.id}`);
+      navigate(`/myProfile`);
     }
   };
 

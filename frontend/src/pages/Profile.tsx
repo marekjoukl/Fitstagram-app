@@ -1,40 +1,31 @@
-import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../contexts/AuthContext";
-import useUserPhotos from "../hooks/useUserPhotos";
-import useDeletePhoto from "../hooks/useDeletePhoto";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Post from "../ui/Post";
+import useGetUserById from "../hooks/useGetUserById";
 
 export default function Profile() {
-  const { authUser } = useAuthContext();
+  const { userId } = useParams();
   const navigate = useNavigate();
+  const { user, loading, error } = useGetUserById(Number(userId));
 
-  const { photos: initialPhotos, loadingPhotos } = useUserPhotos(authUser?.id);
-  const { deletePhoto, loadingDelete } = useDeletePhoto();
-
-  const [photos, setPhotos] = useState(initialPhotos);
-
+  const [photos, setPhotos] = useState(user?.photos || []);
+  // Update photos when the user data is loaded
   useEffect(() => {
-    if (!loadingPhotos) {
-      setPhotos(initialPhotos);
+    if (user?.photos) {
+      setPhotos(user.photos);
     }
-  }, [initialPhotos, loadingPhotos]);
+  }, [user]);
 
-  const handleDelete = async (photoId: number) => {
-    const success = await deletePhoto(photoId);
-    if (success) {
-      setPhotos((prevPhotos) =>
-        prevPhotos.filter((photo) => photo.id !== photoId),
-      );
-    }
-  };
-
-  if (loadingPhotos || loadingDelete) {
+  if (loading) {
     return (
       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
         <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
       </div>
     );
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500">{error}</p>;
   }
 
   return (
@@ -54,37 +45,27 @@ export default function Profile() {
 
         <div className="mb-8 flex flex-col items-center bg-white p-6 shadow-md lg:flex-row lg:p-8">
           <img
-            src={authUser?.image}
-            alt="authUser Avatar"
+            src={user?.image}
+            alt={`${user?.nickname}'s Avatar`}
             className="mb-4 h-36 w-36 rounded-full shadow-lg lg:mb-0"
           />
           <div className="lg:ml-6">
             <h1 className="text-3xl font-bold text-gray-800">
-              {authUser?.nickname}
+              {user?.nickname}
             </h1>
-            <p className="mt-2 text-gray-600">{authUser?.description}</p>
-            <button
-              className="mt-4 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600"
-              onClick={() => navigate(`/profile/${authUser?.id}/edit`)}
-            >
-              Edit Profile
-            </button>
+            <p className="mt-2 text-gray-600">{user?.description}</p>
           </div>
         </div>
 
         {/* Photos Section */}
         <div>
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-800">Your Posts</h2>
-            <button
-              className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-600 hover:to-purple-600"
-              onClick={() => navigate(`/profile/${authUser?.id}/add-post`)}
-            >
-              Add New Post
-            </button>
+            <h2 className="text-2xl font-bold text-gray-800">{`${
+              user?.nickname || "User"
+            }'s Posts`}</h2>
           </div>
           <div className="grid grid-cols-3 gap-6">
-            {photos.map((photo) => (
+            {photos.map((photo: any) => (
               <Post
                 key={photo.id}
                 photo={{
@@ -96,12 +77,8 @@ export default function Profile() {
                   numOfComments: photo.comments?.length || 0,
                   date: photo.date,
                   uploaderId: photo.uploaderId,
-                  uploader: { nickname: photo.uploader.nickname },
+                  uploader: { nickname: user.nickname, id: user.id },
                 }}
-                onEdit={(id) =>
-                  navigate(`/profile/${authUser?.id}/edit-photo/${id}`)
-                }
-                onDelete={handleDelete}
               />
             ))}
           </div>

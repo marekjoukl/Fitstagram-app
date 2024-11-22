@@ -6,6 +6,7 @@ import useLikePhoto from "../hooks/useLikePhoto";
 import useUnlikePhoto from "../hooks/useUnlikePhoto";
 import { useAuthContext } from "../contexts/AuthContext";
 import Comment from "./Comment";
+import { useNavigate } from "react-router-dom";
 
 type Photo = {
   id: number;
@@ -16,6 +17,7 @@ type Photo = {
   date: string;
   uploader: {
     nickname: string;
+    id: number;
   };
 };
 
@@ -44,7 +46,7 @@ const Popup: React.FC<PopupProps> = ({
     setComments,
   } = useGetComments(photo?.id || 0);
   const { deleteComment, loading: deletingComment } = useDeleteComment();
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (!photo || !authUser) return;
 
@@ -61,6 +63,12 @@ const Popup: React.FC<PopupProps> = ({
 
     fetchLikedState();
   }, [photo, authUser]);
+
+  const handleNavigate = () => {
+    authUser?.id === photo?.uploader.id
+      ? navigate("/myProfile")
+      : navigate(`/profile/${photo?.uploader.id}`);
+  };
 
   if (!isOpen || !photo) return null;
 
@@ -124,7 +132,12 @@ const Popup: React.FC<PopupProps> = ({
               />
               <p className="mb-2 text-sm text-gray-600">
                 <span className="font-semibold">Uploaded by:</span>{" "}
-                {photo.uploader.nickname}
+                <span
+                  className="cursor-pointer underline"
+                  onClick={handleNavigate}
+                >
+                  {photo.uploader.nickname}
+                </span>
               </p>
               <p className="mb-2 text-sm text-gray-600">
                 <span className="font-semibold">Uploaded on:</span>{" "}

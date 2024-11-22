@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import prisma from '../db/prisma.js';
+import { Request, Response } from "express";
+import prisma from "../db/prisma.js";
 
 export const searchUsers = async (req: Request, res: Response) => {
   const { nickname } = req.query;
@@ -7,7 +7,7 @@ export const searchUsers = async (req: Request, res: Response) => {
   try {
     let users: { nickname: string }[];
 
-    if (typeof nickname === 'string') {
+    if (typeof nickname === "string") {
       if (nickname.length < 3) {
         // Fetch entries that start with the substring
         users = await prisma.user.findMany({
@@ -33,7 +33,29 @@ export const searchUsers = async (req: Request, res: Response) => {
 
     res.status(200).json(users);
   } catch (error) {
-    console.error('Error searching users:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error searching users:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getUserById = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId, 10) },
+      include: {
+        photos: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

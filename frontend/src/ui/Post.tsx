@@ -12,14 +12,19 @@ type PostProps = {
     date: string;
     uploader: {
       nickname: string;
+      id: number;
     };
     uploaderId: number;
   };
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
+  onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
 };
 
-const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete }) => {
+const Post: React.FC<PostProps> = ({
+  photo,
+  onEdit = () => {},
+  onDelete = () => {},
+}) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const formattedDate = new Date(photo.date).toLocaleString("en-US", {

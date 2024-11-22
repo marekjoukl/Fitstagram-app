@@ -9,6 +9,7 @@ interface Photo {
   date: string; // Date is usually serialized as a string in JSON responses
   uploader: {
     nickname: string;
+    id: number;
   };
   uploaderId: number;
   comments: [];

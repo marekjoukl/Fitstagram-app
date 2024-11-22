@@ -10,6 +10,7 @@ type Photo = {
   date: string;
   uploader: {
     nickname: string;
+    id: number;
   };
 };
 

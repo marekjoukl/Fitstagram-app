@@ -10,6 +10,7 @@ import EditProfile from "./pages/EditProfile";
 import AddPost from "./pages/AddPhoto";
 import EditPhoto from "./pages/EditPhoto";
 import CreateGroup from "./pages/CreateGroup";
+import UserProfile from "./pages/UserProfile";
 
 const App = () => {
   const { authUser, isLoading, unregisteredUser } = useAuthContext();
@@ -27,7 +28,9 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={authUser || unregisteredUser ? <Home /> : <Navigate to="/login" />}
+          element={
+            authUser || unregisteredUser ? <Home /> : <Navigate to="/login" />
+          }
         />
         <Route
           path="/register"
@@ -38,29 +41,26 @@ const App = () => {
           element={!authUser ? <Login /> : <Navigate to="/" />}
         />
         <Route
-          path="/profile"
-          element={authUser ? <Profile /> : <Navigate to="/" />}
+          path="/myProfile"
+          element={authUser ? <UserProfile /> : <Navigate to="/" />}
         />
         <Route
           path="/profile/:userId"
           element={authUser ? <Profile /> : <Navigate to="/" />}
         />
         <Route
-          path="/profile/:userId/edit"
+          path="/myProfile/edit"
           element={authUser ? <EditProfile /> : <Navigate to="/" />}
         />
         <Route
-          path="/profile/:userId/edit-photo/:photoId"
+          path="/myProfile/edit-photo/:photoId"
           element={authUser ? <EditPhoto /> : <Navigate to="/" />}
         />
         <Route
-          path="/profile/:userId/add-post"
+          path="/myProfile/add-post"
           element={authUser ? <AddPost /> : <Navigate to="/" />}
         />
-        <Route
-          path="*"
-          element={<NotFound />}
-        />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
     </div>
