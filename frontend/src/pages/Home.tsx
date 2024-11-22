@@ -212,7 +212,7 @@ export default function Home() {
             </div>
             {/* User Search Results */}
             {userQuery && (
-              <div className="absolute mt-2 w-full rounded-lg bg-white shadow-lg">
+              <div className="absolute z-[999] mt-2 w-full rounded-lg bg-white shadow-lg">
                 {loadingUsers && <p className="p-4">Loading...</p>}
                 {errorUsers && <p className="p-4 text-red-500">{errorUsers}</p>}
                 {users.map((user) => (
@@ -284,7 +284,7 @@ export default function Home() {
             </div>
             {/* Group Search Results */}
             {groupQuery && (
-              <div className="absolute mt-2 w-full rounded-lg bg-white shadow-lg">
+              <div className="absolute z-[999] mt-2 w-full rounded-lg bg-white shadow-lg">
                 {loadingGroups && <p className="p-4">Loading...</p>}
                 {errorGroups && (
                   <p className="p-4 text-red-500">{errorGroups}</p>

@@ -200,13 +200,17 @@ const Popup: React.FC<PopupProps> = ({
                       id={comment.id}
                       content={comment.content}
                       author={comment.author}
-                      canDelete={authUser?.id === comment.author.id || authUser?.role === Role.ADMIN || authUser?.role === Role.MODERATOR}
+                      canDelete={
+                        authUser?.id === comment.author.id ||
+                        authUser?.role === Role.ADMIN ||
+                        authUser?.role === Role.MODERATOR
+                      }
                       onDelete={handleDeleteComment}
                     />
                   ))}
                 </div>
               )}
-              {(authUser && 
+              {authUser && (
                 <div className="mt-4">
                   <textarea
                     value={newComment}

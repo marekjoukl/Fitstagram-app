@@ -36,7 +36,7 @@ export default function EditPhoto() {
     e.preventDefault();
     const success = await editPhoto(Number(photoId), formData);
     if (success) {
-      navigate("/profile");
+      navigate("/myProfile");
     }
   };
 

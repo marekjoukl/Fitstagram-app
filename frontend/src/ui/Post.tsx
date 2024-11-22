@@ -20,11 +20,7 @@ type PostProps = {
   onDelete?: (id: number) => void;
 };
 
-const Post: React.FC<PostProps> = ({
-  photo,
-  onEdit = () => {},
-  onDelete = () => {},
-}) => {
+const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete }) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const formattedDate = new Date(photo.date).toLocaleString("en-US", {
@@ -49,20 +45,26 @@ const Post: React.FC<PostProps> = ({
           />
 
           {/* Hover Actions */}
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 hover:opacity-100">
-            <button
-              className="mr-2 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white shadow-md hover:bg-blue-600"
-              onClick={() => onEdit(photo.id)}
-            >
-              Edit
-            </button>
-            <button
-              className="rounded-lg bg-red-500 px-3 py-1 text-sm text-white shadow-md hover:bg-red-600"
-              onClick={() => onDelete(photo.id)}
-            >
-              Delete
-            </button>
-          </div>
+          {(onEdit || onDelete) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 hover:opacity-100">
+              {onEdit && (
+                <button
+                  className="mr-2 rounded-lg bg-blue-500 px-3 py-1 text-sm text-white shadow-md hover:bg-blue-600"
+                  onClick={() => onEdit(photo.id)}
+                >
+                  Edit
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  className="rounded-lg bg-red-500 px-3 py-1 text-sm text-white shadow-md hover:bg-red-600"
+                  onClick={() => onDelete(photo.id)}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Post Info */}

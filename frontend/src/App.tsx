@@ -44,10 +44,7 @@ const App = () => {
           path="/myProfile"
           element={authUser ? <UserProfile /> : <Navigate to="/" />}
         />
-        <Route
-          path="/profile/:userId"
-          element={authUser ? <Profile /> : <Navigate to="/" />}
-        />
+        <Route path="/profile/:userId" element={<Profile />} />
         <Route
           path="/myProfile/edit"
           element={authUser ? <EditProfile /> : <Navigate to="/" />}
