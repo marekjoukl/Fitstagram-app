@@ -59,3 +59,24 @@ export const getUserById = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const getUserGroups = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const groups = await prisma.group.findMany({
+      where: {
+        users: {
+          some: {
+            userId: parseInt(userId, 10),
+          },
+        },
+      },
+    });
+
+    res.status(200).json(groups);
+  } catch (error) {
+    console.error("Error fetching user groups:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

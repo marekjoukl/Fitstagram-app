@@ -27,8 +27,8 @@ export default function Group() {
   const handleDelete = async (photoId: number) => {
     const success = await deletePhoto(photoId);
     if (success) {
-      setPhotos((prevPhotos: typeof initialPhotos) =>
-        prevPhotos.filter((photo: typeof initialPhotos[0]) => photo.id !== photoId),
+      setPhotos((prevPhotos) =>
+        prevPhotos.filter((photo) => photo.id !== photoId),
       );
     }
   };
@@ -42,6 +42,7 @@ export default function Group() {
     setShowManageMembers(false);
     setSelectedGroup(null);
   };
+
 
   if (loading || loadingDelete) {
     return (
@@ -114,17 +115,9 @@ export default function Group() {
         <div>
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-800">Group Posts</h2>
-            {authUser?.id === group?.managerId && (
-              <button
-                className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-600 hover:to-purple-600"
-                onClick={() => navigate(`/group/${groupId}/add-post`)}
-              >
-                Add New Post
-              </button>
-            )}
           </div>
           <div className="grid grid-cols-3 gap-6">
-            {photos.map((photo: typeof initialPhotos[0]) => (
+            {photos.map((photo) => (
               <Post
                 key={photo.id}
                 photo={{
@@ -136,12 +129,14 @@ export default function Group() {
                   numOfComments: photo.comments?.length || 0,
                   date: photo.date,
                   uploaderId: photo.uploaderId,
-                  uploader: { nickname: photo.uploader.nickname, id: photo.uploader.id },
+                  uploader: {
+                    nickname: photo.uploader.nickname,
+                    id: photo.uploader.id,
+                  },
                 }}
-                onEdit={(id) =>
-                  navigate(`/group/${groupId}/edit-photo/${id}`)
-                }
+                onEdit={(id) => navigate(`/group/${groupId}/edit-photo/${id}`)}
                 onDelete={handleDelete}
+                groupId={Number(groupId)} // Pass groupId prop
               />
             ))}
           </div>

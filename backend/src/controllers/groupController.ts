@@ -113,11 +113,50 @@ export const getGroupById = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    console.log('Fetched group data:', group);
+    // Extract full photo details
+    const photos = group.photos.map(photoInGroup => photoInGroup.photo);
 
-    res.status(200).json(group); // Return the group object directly
+    res.status(200).json({ ...group, photos }); // Return the group object with full photo details
   } catch (error) {
     console.error('Error fetching group details:', error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const addPhotoToGroup = async (req: Request, res: Response) => {
+  const { groupId, photoId } = req.body;
+
+  try {
+    const photoInGroup = await prisma.photosInGroups.create({
+      data: {
+        groupId,
+        photoId,
+      },
+    });
+
+    res.status(201).json(photoInGroup);
+  } catch (error) {
+    console.error("Error adding photo to group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const removePhotoFromGroup = async (req: Request, res: Response) => {
+  const { groupId, photoId } = req.body;
+
+  try {
+    await prisma.photosInGroups.delete({
+      where: {
+        photoId_groupId: {
+          photoId,
+          groupId,
+        },
+      },
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error removing photo from group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

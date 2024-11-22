@@ -18,9 +18,10 @@ type PostProps = {
   };
   onEdit?: (id: number) => void;
   onDelete?: (id: number) => void;
+  groupId?: number; // Add groupId prop
 };
 
-const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete }) => {
+const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete, groupId }) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const formattedDate = new Date(photo.date).toLocaleString("en-US", {
@@ -30,6 +31,13 @@ const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete }) => {
     hour: "numeric",
     minute: "numeric",
   });
+
+  const handleRemoveFromGroup = () => {
+    // Refresh the group's photos list
+    console.log("Removing photo from group");
+    window.location.reload();
+
+  };
 
   const toggleDetails = () => setShowDetails(!showDetails);
 
@@ -97,7 +105,13 @@ const Post: React.FC<PostProps> = ({ photo, onEdit, onDelete }) => {
       </div>
 
       {/* Popup Integration */}
-      <Popup isOpen={showDetails} onClose={toggleDetails} photo={photo} />
+      <Popup 
+        isOpen={showDetails} 
+        onClose={toggleDetails} 
+        photo={photo} 
+        groupId={groupId}
+        onRemoveFromGroup={handleRemoveFromGroup}
+      />
     </>
   );
 };

@@ -4,6 +4,8 @@ import useAddComment from "../hooks/useAddComment";
 import useDeleteComment from "../hooks/useDeleteComment";
 import useLikePhoto from "../hooks/useLikePhoto";
 import useUnlikePhoto from "../hooks/useUnlikePhoto";
+import useAddPhotoToGroup from "../hooks/useAddPhotoToGroup";
+import useRemovePhotoFromGroup from "../hooks/useRemovePhotoFromGroup"; // Import the new hook
 import { useAuthContext } from "../contexts/AuthContext";
 import Comment from "./Comment";
 import { Role } from "@prisma/client";
@@ -27,6 +29,8 @@ type PopupProps = {
   onClose: () => void;
   photo: Photo | null;
   onUpdateComments?: () => void;
+  groupId?: number; // Add groupId prop
+  onRemoveFromGroup?: () => void; // Add onRemoveFromGroup prop
 };
 
 const Popup: React.FC<PopupProps> = ({
@@ -34,13 +38,25 @@ const Popup: React.FC<PopupProps> = ({
   onClose,
   photo,
   onUpdateComments = () => {},
+  groupId, // Add groupId prop
+  onRemoveFromGroup, // Add onRemoveFromGroup prop
 }) => {
   const [newComment, setNewComment] = useState("");
   const [liked, setLiked] = useState(false);
   const { authUser } = useAuthContext();
+  const [isMemberOfGroup, setIsMemberOfGroup] = useState(false);
+  type Group = {
+    id: number;
+    name: string;
+  };
+  
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [showGroups, setShowGroups] = useState(false);
   const { addComment, loading: addingComment } = useAddComment();
   const { likePhoto, loading: liking } = useLikePhoto();
   const { unlikePhoto, loading: unliking } = useUnlikePhoto();
+  const { addPhotoToGroup, loading: addingPhotoToGroup } = useAddPhotoToGroup();
+  const { removePhotoFromGroup, loading: removingPhotoFromGroup } = useRemovePhotoFromGroup(); // Use the new hook
   const {
     comments,
     loading: loadingComments,
@@ -64,6 +80,23 @@ const Popup: React.FC<PopupProps> = ({
 
     fetchLikedState();
   }, [photo, authUser]);
+
+  useEffect(() => {
+    const checkGroupMembership = async () => {
+      if (!authUser) return;
+      try {
+        const res = await fetch(`/api/users/${authUser.id}/groups`);
+        if (!res.ok) throw new Error("Failed to fetch group membership");
+        const data = await res.json();
+        setGroups(data);
+        setIsMemberOfGroup(data.length > 0);
+      } catch (error) {
+        console.error("Error fetching group membership:", error);
+      }
+    };
+
+    checkGroupMembership();
+  }, [authUser]);
 
   const handleNavigate = () => {
     authUser?.id === photo?.uploader.id
@@ -107,6 +140,28 @@ const Popup: React.FC<PopupProps> = ({
     if (success) {
       setLiked(!liked);
       photo.numOfLikes += liked ? -1 : 1; // Update like count
+    }
+  };
+
+  const handleAddToGroupClick = () => {
+    setShowGroups(!showGroups);
+  };
+
+  const handleAddToGroup = async (groupId: number) => {
+    if (!photo) return;
+    const data = await addPhotoToGroup(groupId, photo.id);
+    if (data) {
+      console.log('Photo added to group:', data);
+    }
+  };
+
+  const handleRemoveFromGroup = async () => {
+    if (!photo || !groupId) return;
+    const data = await removePhotoFromGroup(groupId, photo.id);
+    if (!data) {
+      console.log('Photo removed from group:', data);
+      onClose(); // Close the popup after removal
+      if (onRemoveFromGroup) onRemoveFromGroup(); // Call the callback function
     }
   };
 
@@ -230,6 +285,46 @@ const Popup: React.FC<PopupProps> = ({
                 </div>
               )}
             </div>
+          </div>
+          <div className="flex flex-start">
+            {authUser?.id === photo?.uploader.id && (
+              <div className="absolute bottom-4 right-4 flex space-x-2">
+                {groupId && (
+                  <button
+                    onClick={handleRemoveFromGroup}
+                    className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-red-600"
+                    disabled={removingPhotoFromGroup}
+                  >
+                    Remove from this group
+                  </button>
+                )}
+                {isMemberOfGroup && (
+                  <button
+                    onClick={handleAddToGroupClick}
+                    className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600"
+                    disabled={addingPhotoToGroup}
+                  >
+                    Add to group
+                  </button>
+                )}
+                {showGroups && (
+                  <div className="absolute left-30 mt-2 w-48 rounded-lg bg-white p-4 shadow-lg">
+                    <h4 className="mb-2 text-sm font-semibold text-gray-800">Your Groups</h4>
+                    <ul className="space-y-2">
+                      {groups.map((group) => (
+                        <li
+                          key={group.id}
+                          className="cursor-pointer text-sm text-gray-700 hover:underline"
+                          onClick={() => handleAddToGroup(group.id)}
+                        >
+                          {group.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
