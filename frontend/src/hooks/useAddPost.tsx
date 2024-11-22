@@ -12,6 +12,7 @@ const useAddPost = () => {
     name: string;
     description: string;
     url: string;
+    visibleTo: number[];
   }) => {
     try {
       setLoading(true);
