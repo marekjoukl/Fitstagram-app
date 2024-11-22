@@ -42,6 +42,8 @@ const protectRoute = async (
         nickname: true,
         role: true,
         image: true,
+        photos: true,
+        groups: true,
       },
     });
 

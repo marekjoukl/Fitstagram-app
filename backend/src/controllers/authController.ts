@@ -11,7 +11,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ message: "Username and password are required" });
       return;
     }
-    const user = await prisma.user.findUnique({ where: { username } });
+    const user = await prisma.user.findUnique({
+      where: { username },
+      include: { photos: true, groups: true },
+    });
     if (!user) {
       res.status(400).json({ error: "The user does not exist" });
       return;
@@ -30,6 +33,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       nickname: user.nickname,
       image: user.image,
       role: user.role,
+      groups: user.groups,
+      photos: user.photos,
     });
   } catch (error: any) {
     console.log("Error in login controller", error.message);
