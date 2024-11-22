@@ -45,7 +45,7 @@ export default function Home() {
     loading: photosLoading,
     error: photosError,
     fetchPhotos,
-  } = useGetPhotos();
+  } = useGetPhotos(authUser?.id, authUser?.role);
 
   const handleGoToProfile = () => {
     if (authUser) {
@@ -159,7 +159,7 @@ export default function Home() {
 
         {/* Logout/Login Button */}
         <div className="mt-4">
-          {authUser ? <LogoutButton /> : <LoginButton />}
+          {authUser ? ( <LogoutButton onLogout={() => fetchPhotos()} /> ) : ( <LoginButton /> ) }
         </div>
       </aside>
 

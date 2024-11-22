@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuthContext } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
 
-const useLogout = () => {
+const useLogout = (onLogout: () => void) => {
   const [loading, setLoading] = useState(false);
   const { setAuthUser } = useAuthContext();
   const { setUnregisteredUser } = useAuthContext();
@@ -20,6 +20,7 @@ const useLogout = () => {
 
       setAuthUser(null);
       setUnregisteredUser(true);
+      onLogout();
     } catch (error: any) {
       console.error(error.message);
       toast.error(error.message);

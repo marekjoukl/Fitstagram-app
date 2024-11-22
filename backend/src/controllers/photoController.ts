@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
+import { Role } from "@prisma/client";
 
 // Create a new photo
 export const createPhoto = async (req: Request, res: Response) => {
-  const { name, description, url } = req.body;
+  const { name, description, url, visibleTo } = req.body;
   const uploaderId = req.user.id;
 
   try {
@@ -13,6 +14,14 @@ export const createPhoto = async (req: Request, res: Response) => {
         description,
         url,
         uploaderId,
+        visibleTo: {
+          create: visibleTo.map((userId: number) => ({
+            userId,
+          })),
+        },
+      },
+      include: {
+        visibleTo: true,
       },
     });
     res.status(201).json(photo);
@@ -23,9 +32,28 @@ export const createPhoto = async (req: Request, res: Response) => {
 };
 
 // Get all photos
-export const getPhotos = async (_req: Request, res: Response) => {
+export const getPhotos = async (req: Request, res: Response) => {
+  const { userId, role } = req.query;
+
   try {
     const photos = await prisma.photo.findMany({
+      where:
+        // If userId is not provided, return public photos
+        !userId
+        ? { visibleTo: { none: {} } }
+
+        // If user is admin or modeeturn all photos
+        : role === Role.ADMIN || role === Role.MODERATOR
+        ? {}
+        
+        // If userId is provided, return photos uploaded by the user, photos visible to the user, and public photos
+        : {
+            OR: [
+              { uploaderId: Number(userId) },
+              { visibleTo: { some: { userId: Number(userId) } } },
+              { visibleTo: { none: {} } },
+            ],
+          },
       include: {
         uploader: { select: { nickname: true, id: true } },
         _count: { select: { comments: true } },
