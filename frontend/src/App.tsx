@@ -11,6 +11,7 @@ import AddPost from "./pages/AddPhoto";
 import EditPhoto from "./pages/EditPhoto";
 import CreateGroup from "./pages/CreateGroup";
 import UserProfile from "./pages/UserProfile";
+import Group from "./pages/Group";
 
 const App = () => {
   const { authUser, isLoading, unregisteredUser } = useAuthContext();
@@ -44,7 +45,10 @@ const App = () => {
           path="/myProfile"
           element={authUser ? <UserProfile /> : <Navigate to="/" />}
         />
-        <Route path="/profile/:userId" element={<Profile />} />
+        <Route
+          path="/profile/:userId"
+          element={authUser ? <Profile /> : <Navigate to="/" />}
+        />
         <Route
           path="/myProfile/edit"
           element={authUser ? <EditProfile /> : <Navigate to="/" />}
@@ -56,6 +60,14 @@ const App = () => {
         <Route
           path="/myProfile/add-post"
           element={authUser ? <AddPost /> : <Navigate to="/" />}
+        />
+        <Route
+          path="group/create"
+          element={authUser ? <CreateGroup /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/group/:groupId"
+          element={authUser ? <Group /> : <Navigate to="/" />}
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

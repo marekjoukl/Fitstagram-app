@@ -81,6 +81,10 @@ export default function Home() {
     fetchPhotos();
   };
 
+  const handleGroupClick = (groupId: number) => {
+    navigate(`/group/${groupId}`);
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -292,7 +296,8 @@ export default function Home() {
                 {groups.map((group) => (
                   <div
                     key={group.id}
-                    className="flex items-center p-4 hover:bg-gray-100"
+                    className="flex items-center p-4 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleGroupClick(group.id)}
                   >
                     <div className="ml-4">
                       <p className="text-sm font-semibold">{group.name}</p>

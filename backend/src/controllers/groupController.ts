@@ -25,19 +25,21 @@ export const createGroup = async (req: Request, res: Response) => {
 };
 
 export const addUserToGroup = async (req: Request, res: Response) => {
-  const { groupId, userId } = req.body;
+  const { groupId, userIds } = req.body;
+  console.log('Adding users to group:', { groupId, userIds });
 
   try {
-    const userInGroup = await prisma.usersInGroups.create({
-      data: {
+    const usersInGroup = await prisma.usersInGroups.createMany({
+      data: userIds.map((userId: number) => ({
         groupId,
         userId,
-      },
+      })),
+      skipDuplicates: true,
     });
 
-    res.status(201).json(userInGroup);
+    res.status(201).json(usersInGroup);
   } catch (error) {
-    console.error('Error adding user to group:', error);
+    console.error('Error adding users to group:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -79,31 +81,43 @@ export const searchGroups = async (req: Request, res: Response) => {
       console.error('Error searching groups:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  };
+};
 
-// export const getGroupDetails = async (req: Request, res: Response) => {
-//   const { groupId } = req.params;
+export const getGroupById = async (req: Request, res: Response): Promise<void> => {
+  const { groupId } = req.params;
 
-//   try {
-//     const group = await prisma.group.findUnique({
-//       where: { id: parseInt(groupId) },
-//       include: {
-//         users: {
-//           include: {
-//             user: true,
-//           },
-//         },
-//         photos: true,
-//       },
-//     });
+  try {
+    const group = await prisma.group.findUnique({
+      where: { id: parseInt(groupId) },
+      include: {
+        users: {
+          include: {
+            user: true,
+          },
+        },
+        photos: {
+          include: {
+            photo: {
+              include: {
+                uploader: true,
+                comments: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
-//     if (!group) {
-//       return res.status(404).json({ error: 'Group not found' });
-//     }
+    if (!group) {
+      res.status(404).json({ error: 'Group not found' });
+      return;
+    }
 
-//     res.status(200).json(group);
-//   } catch (error) {
-//     console.error('Error fetching group details:', error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// };
+    console.log('Fetched group data:', group);
+
+    res.status(200).json(group); // Return the group object directly
+  } catch (error) {
+    console.error('Error fetching group details:', error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
