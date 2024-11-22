@@ -6,6 +6,7 @@ import useLikePhoto from "../hooks/useLikePhoto";
 import useUnlikePhoto from "../hooks/useUnlikePhoto";
 import { useAuthContext } from "../contexts/AuthContext";
 import Comment from "./Comment";
+import { Role } from "@prisma/client";
 import { useNavigate } from "react-router-dom";
 
 type Photo = {
@@ -199,29 +200,31 @@ const Popup: React.FC<PopupProps> = ({
                       id={comment.id}
                       content={comment.content}
                       author={comment.author}
-                      canDelete={authUser?.id === comment.author.id}
+                      canDelete={authUser?.id === comment.author.id || authUser?.role === Role.ADMIN || authUser?.role === Role.MODERATOR}
                       onDelete={handleDeleteComment}
                     />
                   ))}
                 </div>
               )}
-              <div className="mt-4">
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Add a comment..."
-                  rows={2}
-                  disabled={addingComment || deletingComment}
-                />
-                <button
-                  onClick={handleAddComment}
-                  className="mt-2 w-full rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 disabled:opacity-50"
-                  disabled={addingComment || deletingComment}
-                >
-                  {addingComment ? "Posting..." : "Post Comment"}
-                </button>
-              </div>
+              {(authUser && 
+                <div className="mt-4">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Add a comment..."
+                    rows={2}
+                    disabled={addingComment || deletingComment}
+                  />
+                  <button
+                    onClick={handleAddComment}
+                    className="mt-2 w-full rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 disabled:opacity-50"
+                    disabled={addingComment || deletingComment}
+                  >
+                    {addingComment ? "Posting..." : "Post Comment"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
