@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 import useGetGroupById from "../hooks/useGetGroupById";
 import useDeletePhoto from "../hooks/useDeletePhoto";
@@ -13,6 +13,7 @@ export default function Group() {
   const { authUser } = useAuthContext();
   const navigate = useNavigate();
   const { groupId } = useParams();
+  const location = useLocation();
 
   const { group, photos: initialPhotos, loading, error, refetch } = useGetGroupById(Number(groupId)); // Add refetch
   const { deletePhoto, loadingDelete } = useDeletePhoto();
@@ -75,6 +76,14 @@ export default function Group() {
     }
   };
 
+  const handleBackClick = () => {
+    if (location.state?.from === "groups") {
+      navigate("/groups");
+    } else {
+      navigate("/");
+    }
+  };
+
   if (loading || loadingDelete || loadingRequest || loadingRequests || loadingApprove) {
     return (
       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
@@ -90,11 +99,9 @@ export default function Group() {
           <div className="mb-6">
             <button
               className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 shadow-md transition hover:bg-gray-300"
-              onClick={() => {
-                navigate("/");
-              }}
+              onClick={handleBackClick}
             >
-              ← Back to Main Page
+              ← Back to {location.state?.from === "groups" ? "Browse Groups" : "Main Page"}
             </button>
           </div>
           <div className="text-center text-red-500">
@@ -112,11 +119,9 @@ export default function Group() {
         <div className="mb-6">
           <button
             className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 shadow-md transition hover:bg-gray-300"
-            onClick={() => {
-              navigate("/");
-            }}
+            onClick={handleBackClick}
           >
-            ← Back to Main Page
+            ← Back to {location.state?.from === "groups" ? "Browse Groups" : "Main Page"}
           </button>
         </div>
 

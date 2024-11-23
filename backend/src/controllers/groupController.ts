@@ -210,3 +210,13 @@ export const approveJoinRequest = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getAllGroups = async (req: Request, res: Response) => {
+  try {
+    const groups = await prisma.group.findMany();
+    res.status(200).json(groups);
+  } catch (error) {
+    console.error("Error fetching groups:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

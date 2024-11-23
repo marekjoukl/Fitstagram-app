@@ -12,6 +12,7 @@ import EditPhoto from "./pages/EditPhoto";
 import CreateGroup from "./pages/CreateGroup";
 import UserProfile from "./pages/UserProfile";
 import Group from "./pages/Group";
+import Groups from "./pages/Groups";
 
 const App = () => {
   const { authUser, isLoading, unregisteredUser } = useAuthContext();
@@ -68,6 +69,10 @@ const App = () => {
         <Route
           path="/group/:groupId"
           element={authUser ? <Group /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/groups"
+          element={authUser ? <Groups /> : <Navigate to="/" />}
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
