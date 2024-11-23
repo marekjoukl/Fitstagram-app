@@ -105,6 +105,11 @@ export const getGroupById = async (req: Request, res: Response): Promise<void> =
             },
           },
         },
+        usersToJoin: { // Include usersToJoin
+          include: {
+            user: true,
+          },
+        },
       },
     });
 
@@ -157,6 +162,51 @@ export const removePhotoFromGroup = async (req: Request, res: Response) => {
     res.status(204).send();
   } catch (error) {
     console.error("Error removing photo from group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getJoinRequests = async (req: Request, res: Response) => {
+  const { groupId } = req.params;
+
+  try {
+    const joinRequests = await prisma.usersWaitingToJoinGroup.findMany({
+      where: { groupId: parseInt(groupId, 10) },
+      include: {
+        user: true,
+      },
+    });
+
+    res.status(200).json(joinRequests);
+  } catch (error) {
+    console.error("Error fetching join requests:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const approveJoinRequest = async (req: Request, res: Response) => {
+  const { groupId, userId } = req.body;
+
+  try {
+    await prisma.usersInGroups.create({
+      data: {
+        groupId,
+        userId,
+      },
+    });
+
+    await prisma.usersWaitingToJoinGroup.delete({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId,
+        },
+      },
+    });
+
+    res.status(200).json({ message: "User added to group successfully" });
+  } catch (error) {
+    console.error("Error approving join request:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

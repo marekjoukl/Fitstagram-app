@@ -26,5 +26,22 @@ export default function useGetGroupById(groupId: number | undefined) {
     getGroup();
   }, [groupId]);
 
-  return { group, photos, loading, error };
+  const refetch = async () => {
+    if (!groupId) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/groups/${groupId}`);
+      if (!res.ok) throw new Error("Failed to fetch group data");
+      const data = await res.json();
+      setGroup(data);
+      setPhotos(data.photos);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { group, photos, loading, error, refetch };
 }

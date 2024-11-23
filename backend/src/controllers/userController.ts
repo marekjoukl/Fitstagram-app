@@ -80,3 +80,21 @@ export const getUserGroups = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const requestToJoinGroup = async (req: Request, res: Response) => {
+  const { groupId, userId } = req.body;
+
+  try {
+    await prisma.usersWaitingToJoinGroup.create({
+      data: {
+        groupId,
+        userId,
+      },
+    });
+
+    res.status(201).json({ message: "Request to join group sent successfully" });
+  } catch (error) {
+    console.error("Error requesting to join group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useSearchUsers from "../hooks/useSearchUsers";
+import useAddUsersToGroup from "../hooks/useAddUsersToGroup";
+import useRemoveUserFromGroup from "../hooks/useRemoveUserFromGroup";
+import useFetchCurrentMembers from "../hooks/useFetchCurrentMembers";
 
 interface ManageMembersPopupProps {
   groupId: string;
@@ -7,30 +10,13 @@ interface ManageMembersPopupProps {
 }
 
 export default function ManageMembersPopup({ groupId, onClose }: ManageMembersPopupProps) {
-  const [currentMembers, setCurrentMembers] = useState<{ id: number, username: string, nickname: string, image: string }[]>([]);
   const [query, setQuery] = useState("");
   const { users, loading, error } = useSearchUsers(query);
   const [selectedUsers, setSelectedUsers] = useState<{ id: number, username: string, nickname: string, image: string }[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchCurrentMembers = async () => {
-      try {
-        const res = await fetch(`/api/groups/${groupId}`);
-        if (!res.ok) throw new Error("Failed to fetch current members");
-        const data = await res.json();
-        if (Array.isArray(data.users)) {
-          setCurrentMembers(data.users.map((userInGroup: any) => userInGroup.user));
-        } else {
-          throw new Error("Invalid group data");
-        }
-      } catch (err: any) {
-        setErrorMsg(err.message);
-      }
-    };
-
-    fetchCurrentMembers();
-  }, [groupId]);
+  const { addUsers, error: addUsersError } = useAddUsersToGroup(groupId);
+  const { removeUser, error: removeUserError } = useRemoveUserFromGroup(groupId);
+  const { currentMembers, error: fetchMembersError, fetchCurrentMembers } = useFetchCurrentMembers(groupId);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -45,35 +31,21 @@ export default function ManageMembersPopup({ groupId, onClose }: ManageMembersPo
   };
 
   const handleAddMembers = async () => {
-    try {
-      const res = await fetch(`/api/groups/add-user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ groupId: Number(groupId), userIds: selectedUsers.map(user => user.id) }),
-      });
-      if (!res.ok) throw new Error("Failed to add members");
-      setCurrentMembers((prev) => [...prev, ...selectedUsers]);
+    const success = await addUsers(selectedUsers.map(user => user.id));
+    if (success) {
       setSelectedUsers([]);
-    } catch (err: any) {
-      setErrorMsg(err.message);
+      fetchCurrentMembers();
+    } else {
+      setErrorMsg(addUsersError);
     }
   };
 
   const handleRemoveMember = async (userId: number) => {
-    try {
-      const res = await fetch(`/api/groups/remove-user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ groupId: Number(groupId), userId }),
-      });
-      if (!res.ok) throw new Error("Failed to remove member");
-      setCurrentMembers((prev) => prev.filter((user) => user.id !== userId));
-    } catch (err: any) {
-      setErrorMsg(err.message);
+    const success = await removeUser(userId);
+    if (success) {
+      fetchCurrentMembers();
+    } else {
+      setErrorMsg(removeUserError);
     }
   };
 
@@ -82,6 +54,7 @@ export default function ManageMembersPopup({ groupId, onClose }: ManageMembersPo
       <div className="bg-white p-6 rounded-lg shadow-lg w-3/4">
         <h2 className="text-xl font-bold mb-4">Manage Members</h2>
         {errorMsg && <p className="text-red-500 mb-4">{errorMsg}</p>}
+        {fetchMembersError && <p className="text-red-500 mb-4">{fetchMembersError}</p>}
         <div className="flex space-x-4">
           <div className="w-1/3 space-y-2">
             {currentMembers.map((user) => (
