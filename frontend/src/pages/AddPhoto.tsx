@@ -11,10 +11,12 @@ export default function AddPost() {
     description: "",
     url: "",
     visibleTo: [] as number[],
+    tags: [] as string[], // Add tags field
   });
   const [query, setQuery] = useState("");
   const { users } = useSearchUsers(query);
   const [selectedUsers, setSelectedUsers] = useState<{ id: number; nickname: string }[]>([]);
+  const [tagInput, setTagInput] = useState(""); // State for tag input
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -40,6 +42,24 @@ export default function AddPost() {
       visibleTo: prev.visibleTo.filter((id) => id !== userId),
     }));
     setSelectedUsers((prev) => prev.filter((user) => user.id !== userId));
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && tagInput.trim() !== "") {
+      e.preventDefault();
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, tagInput.trim()],
+      }));
+      setTagInput(""); // Clear the tag input field
+    }
+  };
+
+  const handleTagRemove = (tag: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((t) => t !== tag),
+    }));
   };
 
   useEffect(() => {
@@ -106,6 +126,32 @@ export default function AddPost() {
               placeholder="Enter the image URL"
               required
             />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Tags
+            </label>
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagKeyDown}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter tags and press Enter"
+            />
+            <div className="mt-2 flex flex-wrap">
+              {formData.tags.map((tag) => (
+                <div
+                  key={tag}
+                  className="m-1 p-2 rounded-lg bg-gray-200 cursor-pointer hover:bg-red-200 text-black"
+                  onClick={() => handleTagRemove(tag)}
+                >
+                  {tag}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Search Users */}

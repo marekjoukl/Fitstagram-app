@@ -13,6 +13,7 @@ const useAddPost = () => {
     description: string;
     url: string;
     visibleTo: number[];
+    tags: string[]; // Include tags field
   }) => {
     try {
       setLoading(true);

@@ -4,7 +4,7 @@ import { Role } from "@prisma/client";
 
 // Create a new photo
 export const createPhoto = async (req: Request, res: Response) => {
-  const { name, description, url, visibleTo } = req.body;
+  const { name, description, url, visibleTo, tags } = req.body;
   const uploaderId = req.user.id;
 
   try {
@@ -24,7 +24,27 @@ export const createPhoto = async (req: Request, res: Response) => {
         visibleTo: true,
       },
     });
-    res.status(201).json(photo);
+
+    // Handle tags
+    for (const tagName of tags) {
+      let tag = await prisma.tag.findFirst({ where: { content: tagName } });
+      if (!tag) {
+        tag = await prisma.tag.create({ data: { content: tagName } });
+      }
+      await prisma.tagsOnPhotos.create({
+        data: {
+          photoId: photo.id,
+          tagId: tag.id,
+        },
+      });
+    }
+
+    const photoWithTags = await prisma.photo.findUnique({
+      where: { id: photo.id },
+      include: { tags: true },
+    });
+
+    res.status(201).json(photoWithTags);
   } catch (error) {
     console.error("Error creating photo:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -103,6 +123,7 @@ export const getPhotoById = async (req: Request, res: Response) => {
       where: { id: Number(id) },
       include: {
         uploader: { select: { nickname: true } },
+        visibleTo: { select: { userId: true } }
       },
     });
 
@@ -120,7 +141,7 @@ export const getPhotoById = async (req: Request, res: Response) => {
 // Update a photo
 export const updatePhoto = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, description, url } = req.body;
+  const { name, description, url, visibleTo } = req.body;
 
   try {
     const photo = await prisma.photo.findUnique({ where: { id: Number(id) } });
@@ -133,7 +154,8 @@ export const updatePhoto = async (req: Request, res: Response) => {
 
     const updatedPhoto = await prisma.photo.update({
       where: { id: Number(id) },
-      data: { name, description, url },
+      data: { name, description, url, visibleTo},
+      include: { visibleTo: true },
     });
 
     res.status(200).json(updatedPhoto);
@@ -155,6 +177,17 @@ export const deletePhoto = async (req: Request, res: Response) => {
         .status(403)
         .json({ error: "Unauthorized to delete this photo" });
     }
+
+    await prisma.tagsOnPhotos.deleteMany({ where: { photoId: Number(id) } });
+
+    // If a tag is not associated with any photo, delete it
+    await prisma.tag.deleteMany({
+      where: {
+        photos: { none: {} },
+      },
+    });
+    await prisma.likes.deleteMany({ where: { photoId: Number(id) } });
+    await prisma.comment.deleteMany({ where: { photoId: Number(id) } });
 
     await prisma.photo.delete({ where: { id: Number(id) } });
     res.status(200).json({ message: "Photo deleted successfully" });
