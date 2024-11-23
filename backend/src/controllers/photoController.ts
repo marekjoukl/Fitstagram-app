@@ -123,7 +123,8 @@ export const getPhotoById = async (req: Request, res: Response) => {
       where: { id: Number(id) },
       include: {
         uploader: { select: { nickname: true } },
-        visibleTo: { select: { userId: true } }
+        visibleTo: { select: { user: { select: { id: true, nickname: true } } } },
+        tags: { select: { tag: { select: { content: true } } } },
       },
     });
 
@@ -131,7 +132,14 @@ export const getPhotoById = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Photo not found" });
     }
 
-    res.status(200).json(photo);
+    // Map tags to extract content
+    const formattedPhoto = {
+      ...photo,
+      tags: photo.tags.map(tag => tag.tag.content),
+      visibleTo: photo.visibleTo.map(user => user.user),
+    };
+
+    res.status(200).json(formattedPhoto);
   } catch (error) {
     console.error("Error fetching photo:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -141,7 +149,7 @@ export const getPhotoById = async (req: Request, res: Response) => {
 // Update a photo
 export const updatePhoto = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, description, url, visibleTo } = req.body;
+  const { name, description, url, visibleTo, tags } = req.body;
 
   try {
     const photo = await prisma.photo.findUnique({ where: { id: Number(id) } });
@@ -154,11 +162,47 @@ export const updatePhoto = async (req: Request, res: Response) => {
 
     const updatedPhoto = await prisma.photo.update({
       where: { id: Number(id) },
-      data: { name, description, url, visibleTo},
-      include: { visibleTo: true },
+      data: { name, description, url },
+      include: { visibleTo: true, tags: true },
     });
 
-    res.status(200).json(updatedPhoto);
+    // Update visibleTo
+    await prisma.usersWhoCanSeePhotos.deleteMany({ where: { photoId: Number(id) } });
+    await prisma.usersWhoCanSeePhotos.createMany({
+      data: visibleTo.map((userId: number) => ({
+        photoId: Number(id),
+        userId,
+      })),
+    });
+
+    // Update tags
+    await prisma.tagsOnPhotos.deleteMany({ where: { photoId: Number(id) } });
+    for (const tagName of tags) {
+      let tag = await prisma.tag.findFirst({ where: { content: tagName } });
+      if (!tag) {
+        tag = await prisma.tag.create({ data: { content: tagName } });
+      }
+      await prisma.tagsOnPhotos.create({
+        data: {
+          photoId: Number(id),
+          tagId: tag.id,
+        },
+      });
+    }
+
+    const photoWithTags = await prisma.photo.findUnique({
+      where: { id: Number(id) },
+      include: { tags: true, visibleTo: true },
+    });
+
+    // If a tag is not associated with any photo, delete it
+    await prisma.tag.deleteMany({
+      where: {
+        photos: { none: {} },
+      },
+    });
+
+    res.status(200).json(photoWithTags);
   } catch (error) {
     console.error("Error updating photo:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -186,6 +230,7 @@ export const deletePhoto = async (req: Request, res: Response) => {
         photos: { none: {} },
       },
     });
+    
     await prisma.likes.deleteMany({ where: { photoId: Number(id) } });
     await prisma.comment.deleteMany({ where: { photoId: Number(id) } });
     await prisma.usersWhoCanSeePhotos.deleteMany({ where: { photoId: Number(id) } });

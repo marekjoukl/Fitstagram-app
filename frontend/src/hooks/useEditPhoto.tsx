@@ -5,6 +5,8 @@ type PhotoInputs = {
   name: string;
   description: string;
   url: string;
+  visibleTo: number[];
+  tags: string[];
 };
 
 const useEditPhoto = () => {

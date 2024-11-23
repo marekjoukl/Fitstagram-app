@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 type Photo = {
+  tags: string[];
   id: number;
   name: string;
   description: string;
@@ -8,6 +9,7 @@ type Photo = {
   numOfLikes: number;
   date: string;
   uploaderId: number;
+  visibleTo: number[];
 };
 
 const usePhoto = (id: number | null) => {
