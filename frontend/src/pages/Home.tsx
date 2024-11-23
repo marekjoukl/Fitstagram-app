@@ -82,7 +82,11 @@ export default function Home() {
   };
 
   const handleGroupClick = (groupId: number) => {
-    navigate(`/group/${groupId}`);
+    navigate(`/group/${groupId}`, { state: { from: "home" } });
+  };
+
+  const handleBrowseGroups = () => {
+    navigate(`/groups`);
   };
 
   return (
@@ -149,6 +153,12 @@ export default function Home() {
                 onClick={handleCreateGroup}
               >
                 Create Group
+              </button>
+              <button
+                className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+                onClick={handleBrowseGroups}
+              >
+                Browse Groups
               </button>
               <button className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
                 Settings
