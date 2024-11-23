@@ -188,6 +188,7 @@ export const deletePhoto = async (req: Request, res: Response) => {
     });
     await prisma.likes.deleteMany({ where: { photoId: Number(id) } });
     await prisma.comment.deleteMany({ where: { photoId: Number(id) } });
+    await prisma.usersWhoCanSeePhotos.deleteMany({ where: { photoId: Number(id) } });
 
     await prisma.photo.delete({ where: { id: Number(id) } });
     res.status(200).json({ message: "Photo deleted successfully" });
