@@ -157,18 +157,18 @@ export default function AddPost() {
 
           <div className="flex justify-between">
             <button
-              type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Add Post"}
-            </button>
-            <button
               type="button"
               onClick={() => navigate("/myProfile")}
               className="rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow-md transition hover:bg-gray-400"
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600"
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Add Post"}
             </button>
           </div>
         </form>
