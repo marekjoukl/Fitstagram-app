@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id            Int                    @id @default(autoincrement())
-  username      String                 @unique
+  id            Int                       @id @default(autoincrement())
+  username      String                    @unique
   pwdHash       String
   nickname      String
   image         String
-  role          Role                   @default(LOGGED_USER)
+  role          Role                      @default(LOGGED_USER)
   description   String?
   comments      Comment[]
-  managesGroups Group[]                @relation("ManagerOfGroups")
+  managesGroups Group[]                   @relation("ManagerOfGroups")
   likedPhotos   Likes[]
-  photos        Photo[]                @relation("UploadedPhotos")
+  photos        Photo[]                   @relation("UploadedPhotos")
   groups        UsersInGroups[]
+  groupRequests UsersWaitingToJoinGroup[]
   canSeePhotos  UsersWhoCanSeePhotos[]
 }
 
@@ -41,6 +42,16 @@ model UsersInGroups {
 
   @@id([userId, groupId])
   @@index([groupId], map: "UsersInGroups_groupId_fkey")
+}
+
+model UsersWaitingToJoinGroup {
+  userId  Int
+  groupId Int
+  group   Group @relation(fields: [groupId], references: [id])
+  user    User  @relation(fields: [userId], references: [id])
+
+  @@id([userId, groupId])
+  @@index([groupId], map: "UsersWaitingToJoin_groupId_fkey")
 }
 
 model Photo {
@@ -90,12 +101,13 @@ model Comment {
 }
 
 model Group {
-  id        Int              @id @default(autoincrement())
-  name      String
-  managerId Int
-  manager   User             @relation("ManagerOfGroups", fields: [managerId], references: [id])
-  photos    PhotosInGroups[]
-  users     UsersInGroups[]
+  id          Int                       @id @default(autoincrement())
+  name        String
+  managerId   Int
+  manager     User                      @relation("ManagerOfGroups", fields: [managerId], references: [id])
+  photos      PhotosInGroups[]
+  users       UsersInGroups[]
+  usersToJoin UsersWaitingToJoinGroup[]
 
   @@index([managerId], map: "Group_managerId_fkey")
 }
