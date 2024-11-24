@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
-import { Role } from "@prisma/client";
 
 // Delete a tag
 export const deleteTag = async (req: Request, res: Response) => {

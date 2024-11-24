@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
 import bcryptjs from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
-import { Role } from "@prisma/client";
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
