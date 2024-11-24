@@ -6,6 +6,7 @@ import {
   searchUsers,
   getUserGroups,
   requestToJoinGroup,
+  deleteUser,
 } from "../controllers/userController.js";
 const router = express.Router();
 
@@ -19,5 +20,7 @@ router.get("/:userId", protectRoute, getUserById);
 router.get("/:userId/groups", protectRoute, getUserGroups);
 
 router.post("/request-to-join", protectRoute, requestToJoinGroup);
+
+router.delete("/:userId", protectRoute, deleteUser);
 
 export default router;

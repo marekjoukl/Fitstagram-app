@@ -234,11 +234,7 @@ export const deletePhoto = async (req: Request, res: Response) => {
     await prisma.tagsOnPhotos.deleteMany({ where: { photoId: Number(id) } });
 
     // If a tag is not associated with any photo, delete it
-    await prisma.tag.deleteMany({
-      where: {
-        photos: { none: {} },
-      },
-    });
+    await prisma.tag.deleteMany({ where: { photos: { none: {} } } });
 
     await prisma.photosInGroups.deleteMany({ where: { photoId: Number(id) } });
     await prisma.likes.deleteMany({ where: { photoId: Number(id) } });
