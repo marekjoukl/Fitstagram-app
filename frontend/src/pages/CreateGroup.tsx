@@ -25,6 +25,9 @@ export default function CreateGroup() {
     }
   
     const userIds = selectedUsers.map(user => user.id);
+    if (!userIds.includes(authUser.id)) {
+      userIds.push(authUser.id); // Ensure the creator is added to the group
+    }
     const newGroup = await createGroup(groupName, authUser.id, userIds); // Pass userIds to the createGroup function
     if (newGroup) {
       alert(`Group "${newGroup.name}" created successfully!`);
