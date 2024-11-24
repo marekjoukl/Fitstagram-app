@@ -8,6 +8,18 @@ export default function useRequestToJoinGroup() {
   const requestToJoinGroup = async (groupId: number, userId: number) => {
     setLoadingRequest(true);
     try {
+      // Check if the user's request is already pending
+      const checkRes = await axios.get(`/api/groups/${groupId}/join-requests`);
+      const joinRequests = checkRes.data;
+      const requestExists = joinRequests.some((request: { userId: number }) => request.userId === userId);
+
+      if (requestExists) {
+        toast.error("Your request to join this group is already pending.");
+        setLoadingRequest(false);
+        return;
+      }
+
+      // Send the request to join the group
       await axios.post("/api/users/request-to-join", { groupId, userId });
       toast.success("Request sent successfully!");
     } catch (error) {

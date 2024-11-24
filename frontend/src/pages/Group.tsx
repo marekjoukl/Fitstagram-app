@@ -7,6 +7,7 @@ import useFetchJoinRequests from "../hooks/useFetchJoinRequests"; // Import the 
 import useApproveJoinRequest from "../hooks/useApproveJoinRequest"; // Import the new hook
 import useDeleteGroup from "../hooks/useDeleteGroup"; // Import the new hook
 import useLeaveGroup from "../hooks/useLeaveGroup"; // Import the new hook
+import useRefuseJoinRequest from "../hooks/useRefuseJoinRequest"; // Import the new hook
 import { useEffect, useState } from "react";
 import Post from "../ui/Post";
 import ManageMembersPopup from "../ui/ManageMembersPopup"; // Import the new component
@@ -24,6 +25,7 @@ export default function Group() {
   const { approveJoinRequest, loadingApprove } = useApproveJoinRequest(); // Use the new hook
   const { deleteGroup, loadingDeleteGroup } = useDeleteGroup(); // Use the new hook
   const { leaveGroup, loadingLeaveGroup } = useLeaveGroup(); // Use the new hook
+  const { refuseJoinRequest, loadingRefuse } = useRefuseJoinRequest(); // Use the new hook
 
   const [photos, setPhotos] = useState(initialPhotos);
   const [showManageMembers, setShowManageMembers] = useState(false);
@@ -75,8 +77,16 @@ export default function Group() {
   const handleApproveRequest = async (userId: number) => {
     if (groupId) {
       await approveJoinRequest(Number(groupId), userId);
-      await fetchJoinRequests(Number(groupId)); // Refresh the join requests list
+      //await fetchJoinRequests(Number(groupId)); // Refresh the join requests list
       await refetch(); // Refresh the group data
+    }
+  };
+
+  const handleRefuseRequest = async (userId: number) => {
+    if (groupId) {
+      await refuseJoinRequest(Number(groupId), userId);
+      await fetchJoinRequests(Number(groupId)); // Refresh the join requests list
+      refetch(); // Refresh the group data
     }
   };
 
@@ -102,7 +112,7 @@ export default function Group() {
     }
   };
 
-  if (loading || loadingDelete || loadingRequest || loadingRequests || loadingApprove || loadingDeleteGroup || loadingLeaveGroup) {
+  if (loading || loadingDelete || loadingRequest || loadingRequests || loadingApprove || loadingDeleteGroup || loadingLeaveGroup || loadingRefuse) {
     return (
       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
         <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -144,11 +154,11 @@ export default function Group() {
         </div>
 
         <div className="mb-8 flex flex-col items-center bg-white p-6 shadow-md lg:flex-row lg:p-8">
-          <img
+          {/* <img
             src={group?.image}
             alt="Group Avatar"
             className="mb-4 h-36 w-36 rounded-full shadow-lg lg:mb-0"
-          />
+          /> */}
           <div className="lg:ml-6 relative">
             <h1 className="text-3xl font-bold text-black-800">
               {group?.name}
@@ -185,12 +195,20 @@ export default function Group() {
                           {joinRequests.map((request: { userId: number; user: { nickname: string } }) => (
                             <li key={request.userId} className="mt-2 flex justify-between items-center">
                               {request.user.nickname}
-                              <button
-                                className="text-green-500"
-                                onClick={() => handleApproveRequest(request.userId)}
-                              >
-                                ✓
-                              </button>
+                              <div>
+                                <button
+                                  className="text-green-500"
+                                  onClick={() => handleApproveRequest(request.userId)}
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  className="text-red-500 ml-2"
+                                  onClick={() => handleRefuseRequest(request.userId)}
+                                >
+                                  ×
+                                </button>
+                              </div>
                             </li>
                           ))}
                         </ul>

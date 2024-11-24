@@ -10,6 +10,19 @@ const useAddPhotoToGroup = () => {
     setError(null);
 
     try {
+      // Check if the photo is already in the group
+      const checkRes = await fetch(`/api/groups/${groupId}`);
+      if (!checkRes.ok) throw new Error('Failed to check group photos');
+      const groupData = await checkRes.json();
+      const photoExists = groupData.photos.some((photo: { id: number }) => photo.id === photoId);
+
+      if (photoExists) {
+        toast.error('Photo is already in the group.');
+        setLoading(false);
+        return null;
+      }
+
+      // Add the photo to the group
       const res = await fetch('/api/groups/add-photo', {
         method: 'POST',
         headers: {

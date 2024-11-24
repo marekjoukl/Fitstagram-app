@@ -216,6 +216,26 @@ export const approveJoinRequest = async (req: Request, res: Response) => {
   }
 };
 
+export const refuseJoinRequest = async (req: Request, res: Response) => {
+  const { groupId, userId } = req.body;
+
+  try {
+    await prisma.usersWaitingToJoinGroup.delete({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId: parseInt(groupId, 10),
+        },
+      },
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error refusing join request:", error); // Log the error
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const getAllGroups = async (req: Request, res: Response) => {
   try {
     const groups = await prisma.group.findMany({
@@ -276,6 +296,26 @@ export const leaveGroup = async (req: Request, res: Response) => {
     res.status(204).send();
   } catch (error) {
     console.error("Error leaving group:", error); // Log the error
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const isUserMember = async (req: Request, res: Response) => {
+  const { groupId, userId } = req.params;
+
+  try {
+    const userInGroup = await prisma.usersInGroups.findUnique({
+      where: {
+        userId_groupId: {
+          userId: parseInt(userId, 10),
+          groupId: parseInt(groupId, 10),
+        },
+      },
+    });
+
+    res.status(200).json(!!userInGroup);
+  } catch (error) {
+    console.error("Error checking if user is a member:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
