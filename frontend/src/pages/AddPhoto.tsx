@@ -96,7 +96,7 @@ export default function AddPost() {
           {/* Post Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Post Name
+              Post Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -112,7 +112,7 @@ export default function AddPost() {
           {/* Post Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Description
+              Description <span className="text-red-500">*</span>
             </label>
             <textarea
               name="description"
@@ -128,7 +128,7 @@ export default function AddPost() {
           {/* Image URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Image URL
+              Image URL <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -256,6 +256,10 @@ export default function AddPost() {
             </button>
           </div>
         </form>
+
+        <p className="mt-2 text-sm text-gray-500">
+          <span className="text-red-500">*</span> Required fields
+        </p>
       </div>
     </div>
   );

@@ -61,7 +61,7 @@ export default function CreateGroup() {
           {/* Group Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Group Name
+              Group Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -205,6 +205,9 @@ export default function CreateGroup() {
             </button>
           </div>
           {createGroupError && <p className="mt-2 text-red-500">{createGroupError}</p>}
+          <p className="mt-4 text-sm text-gray-500">
+            <span className="text-red-500">*</span> Required field
+          </p>
         </div>
       </div>
     </div>

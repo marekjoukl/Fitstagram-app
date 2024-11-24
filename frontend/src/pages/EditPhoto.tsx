@@ -124,7 +124,7 @@ export default function EditPhoto() {
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Photo Name
+              Photo Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -139,7 +139,7 @@ export default function EditPhoto() {
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Description
+              Description <span className="text-red-500">*</span>
             </label>
             <textarea
               name="description"
@@ -154,7 +154,7 @@ export default function EditPhoto() {
           {/* URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Photo URL
+              Photo URL <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -282,6 +282,10 @@ export default function EditPhoto() {
             </button>
           </div>
         </form>
+
+        <p className="mt-2 text-sm text-gray-500">
+          <span className="text-red-500">*</span> Required fields
+        </p>
       </div>
     </div>
   );
