@@ -5,6 +5,7 @@ type Group = {
   id: number;
   name: string;
   managerId: number;
+  users: { id: number; nickname: string }[]; // Include users in the group type
 };
 
 const useSearchGroups = (query: string) => {
@@ -27,7 +28,14 @@ const useSearchGroups = (query: string) => {
           params: { name: query },
         });
 
-        setGroups(res.data);
+        const groupsWithMembers = await Promise.all(
+          res.data.map(async (group: Group) => {
+            const membersRes = await axios.get(`/api/groups/${group.id}/members`);
+            return { ...group, users: membersRes.data };
+          })
+        );
+
+        setGroups(groupsWithMembers);
       } catch (error: any) {
         setError(error.message || "Error searching groups");
         console.error("Error searching groups:", error);

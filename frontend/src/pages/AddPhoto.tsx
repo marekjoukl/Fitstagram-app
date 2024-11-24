@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import useAddPost from "../hooks/useAddPost";
 import { useNavigate } from "react-router-dom";
 import useSearchUsers from "../hooks/useSearchUsers";
+import useSearchGroups from "../hooks/useSearchGroups"; // Import the hook
 
 export default function AddPost() {
   const { addPost, loading } = useAddPost();
@@ -17,6 +18,8 @@ export default function AddPost() {
   const { users } = useSearchUsers(query);
   const [selectedUsers, setSelectedUsers] = useState<{ id: number; nickname: string }[]>([]);
   const [tagInput, setTagInput] = useState(""); // State for tag input
+  const [groupQuery, setGroupQuery] = useState(""); // State for group search query
+  const { groups } = useSearchGroups(groupQuery); // Use the hook to search groups
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -60,6 +63,16 @@ export default function AddPost() {
       ...prev,
       tags: prev.tags.filter((t) => t !== tag),
     }));
+  };
+
+  const handleGroupClick = (group: { id: number; name: string; users: { id: number; nickname: string }[] }) => {
+    const newUsers = group.users.filter(user => !formData.visibleTo.includes(user.id));
+    setFormData((prev) => ({
+      ...prev,
+      visibleTo: [...prev.visibleTo, ...newUsers.map(user => user.id)],
+    }));
+    setSelectedUsers((prev) => [...prev, ...newUsers]);
+    setGroupQuery(""); // Clear the group search input field
   };
 
   useEffect(() => {
@@ -174,6 +187,31 @@ export default function AddPost() {
                   onClick={() => handleUserClick(user)}
                 >
                   {user.nickname}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Groups */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Add Group Members
+            </label>
+            <input
+              type="text"
+              value={groupQuery}
+              onChange={(e) => setGroupQuery(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Search for groups"
+            />
+            <div className="mt-2 max-h-40 overflow-y-auto">
+              {groups.map((group) => (
+                <div
+                  key={group.id}
+                  className="cursor-pointer p-2 bg-gray-200 hover:bg-green-200 margin-1 rounded-lg text-black"
+                  onClick={() => handleGroupClick(group)}
+                >
+                  {group.name}
                 </div>
               ))}
             </div>

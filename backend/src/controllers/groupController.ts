@@ -318,3 +318,19 @@ export const isUserMember = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getGroupMembers = async (req: Request, res: Response) => {
+  const { groupId } = req.params;
+
+  try {
+    const members = await prisma.usersInGroups.findMany({
+      where: { groupId: Number(groupId) },
+      include: { user: true },
+    });
+
+    res.status(200).json(members.map(member => member.user));
+  } catch (error) {
+    console.error("Error fetching group members:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
