@@ -11,6 +11,7 @@ declare global {
     export interface Request {
       user: {
         id: number;
+        role: string;
       };
     }
   }

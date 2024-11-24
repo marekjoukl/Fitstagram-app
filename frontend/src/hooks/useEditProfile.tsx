@@ -30,7 +30,7 @@ const useEditProfile = () => {
       const data = await res.json();
       setAuthUser(data.user);
       toast.success("Profile updated successfully!");
-      navigate("/profile");
+      navigate("/myProfile");
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile.");

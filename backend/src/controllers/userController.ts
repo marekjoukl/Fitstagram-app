@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
+import { Role } from "@prisma/client";
 
 export const searchUsers = async (req: Request, res: Response) => {
   const { nickname } = req.query;
@@ -40,12 +41,33 @@ export const searchUsers = async (req: Request, res: Response) => {
 
 export const getUserById = async (req: Request, res: Response) => {
   const { userId } = req.params;
+  const loggedInUserId = req.user?.id; // Logged-in user's ID from middleware
+  const loggedInUserRole = req.user?.role; // Logged-in user's role from middleware
 
   try {
     const user = await prisma.user.findUnique({
       where: { id: parseInt(userId, 10) },
       include: {
-        photos: true,
+        photos: {
+          where:
+            loggedInUserRole === Role.ADMIN ||
+            loggedInUserRole === Role.MODERATOR
+              ? {} // Admins and moderators see all photos
+              : {
+                  OR: [
+                    { uploaderId: Number(loggedInUserId) }, // Photos uploaded by the profile owner
+                    { visibleTo: { some: { userId: Number(loggedInUserId) } } }, // Photos explicitly visible to the logged-in user
+                    { visibleTo: { none: {} } }, // Public photos
+                  ],
+                },
+          include: {
+            uploader: { select: { nickname: true, id: true } },
+            _count: { select: { comments: true } },
+            visibleTo: {
+              select: { user: { select: { id: true, nickname: true } } },
+            },
+          },
+        },
       },
     });
 
@@ -53,10 +75,19 @@ export const getUserById = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json(user);
+    // Format the response to include the correct structure
+    const userWithPhotos = {
+      ...user,
+      photos: user.photos.map((photo) => ({
+        ...photo,
+        numOfComments: photo._count.comments, // Attach the number of comments
+      })),
+    };
+
+    res.status(200).json(userWithPhotos);
   } catch (error) {
     console.error("Error fetching user:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -92,7 +123,9 @@ export const requestToJoinGroup = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(201).json({ message: "Request to join group sent successfully" });
+    res
+      .status(201)
+      .json({ message: "Request to join group sent successfully" });
   } catch (error) {
     console.error("Error requesting to join group:", error);
     res.status(500).json({ error: "Internal Server Error" });

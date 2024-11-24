@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useAuthContext } from "../contexts/AuthContext";
 
 const useAddPost = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { authUser } = useAuthContext();
 
   const addPost = async (formData: {
     name: string;
@@ -27,7 +25,7 @@ const useAddPost = () => {
 
       if (!res.ok) throw new Error(data.error);
       toast.success("Post added successfully!");
-      navigate(`/profile/${authUser?.id}`);
+      navigate(`/myProfile`);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
