@@ -230,13 +230,27 @@ export const deleteGroup = async (req: Request, res: Response) => {
   const { groupId } = req.params;
 
   try {
+    // Delete related records in join tables
+    await prisma.photosInGroups.deleteMany({
+      where: { groupId: parseInt(groupId, 10) },
+    });
+
+    await prisma.usersInGroups.deleteMany({
+      where: { groupId: parseInt(groupId, 10) },
+    });
+
+    await prisma.usersWaitingToJoinGroup.deleteMany({
+      where: { groupId: parseInt(groupId, 10) },
+    });
+
+    // Delete the group
     await prisma.group.delete({
       where: { id: parseInt(groupId, 10) },
     });
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting group:", error);
+    console.error("Error deleting group:", error); // Log the error
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
