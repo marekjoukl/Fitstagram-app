@@ -8,6 +8,7 @@ import useSearchGroups from "../hooks/useSearchGroups";
 import useGetPhotos from "../hooks/useGetPhotos";
 import Popup from "../ui/Popup";
 import { ArrowDown } from "../ui/ArrowDown";
+import { Role } from "@prisma/client";
 
 type Photo = {
   id: number;
@@ -89,6 +90,10 @@ export default function Home() {
     navigate(`/groups`);
   };
 
+  const handleManageTags = () => {
+    navigate(`/tags`);
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -160,6 +165,14 @@ export default function Home() {
               >
                 Browse Groups
               </button>
+              {(authUser.role === Role.ADMIN || authUser.role === Role.MODERATOR) && (
+                <button
+                  className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+                    onClick={handleManageTags}
+                >
+                  Manage Tags
+                </button>
+              )}
               <button className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
                 Settings
               </button>
