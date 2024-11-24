@@ -36,7 +36,7 @@ export default function Register() {
               htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              Username
+              Username <span className="text-red-500">*</span>
             </label>
             <div className="mt-1">
               <input
@@ -59,7 +59,7 @@ export default function Register() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              Password <span className="text-red-500">*</span>
             </label>
             <div className="mt-1">
               <input
@@ -82,7 +82,7 @@ export default function Register() {
               htmlFor="passwordConfirm"
               className="block text-sm font-medium text-gray-700"
             >
-              Confirm Password
+              Confirm Password <span className="text-red-500">*</span>
             </label>
             <div className="mt-1">
               <input
@@ -105,7 +105,7 @@ export default function Register() {
               htmlFor="nickname"
               className="block text-sm font-medium text-gray-700"
             >
-              Nickname
+              Nickname <span className="text-red-500">*</span>
             </label>
             <div className="mt-1">
               <input
@@ -131,6 +131,10 @@ export default function Register() {
             {loading ? "Loading..." : "Register"}
           </button>
         </form>
+
+        <p className="mt-2 text-sm text-gray-500">
+          <span className="text-red-500">*</span> Required fields
+        </p>
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}

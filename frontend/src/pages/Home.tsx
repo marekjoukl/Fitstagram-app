@@ -94,6 +94,10 @@ export default function Home() {
     navigate(`/tags`);
   };
 
+  const handleUserClick = (userId: number) => {
+    navigate(`/profile/${userId}`);
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -173,9 +177,6 @@ export default function Home() {
                   Manage Tags
                 </button>
               )}
-              <button className="w-full rounded-lg bg-gray-100 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
-                Settings
-              </button>
             </div>
           )}
         </div>
@@ -249,7 +250,8 @@ export default function Home() {
                 {users.map((user) => (
                   <div
                     key={user.id}
-                    className="flex items-center p-4 hover:bg-gray-100"
+                    className="flex items-center p-4 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleUserClick(user.id)}
                   >
                     <img
                       src={user.image}

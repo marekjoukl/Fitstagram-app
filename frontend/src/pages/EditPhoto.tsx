@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useEditPhoto from "../hooks/useEditPhoto";
 import usePhoto from "../hooks/useGetPhotoById";
-import useSearchUsers from "../hooks/useSearchUsers"; // Remove the import for useGetUserById
+import useSearchUsers from "../hooks/useSearchUsers";
+import useSearchGroups from "../hooks/useSearchGroups"; // Import the hook
 
 export default function EditPhoto() {
   const { photoId } = useParams<{ photoId: string }>();
   const navigate = useNavigate();
   const { editPhoto, loading } = useEditPhoto();
-  const { photo, loading: photoLoading } = usePhoto(Number(photoId)); // Remove the useGetUserById hook
+  const { photo, loading: photoLoading } = usePhoto(Number(photoId));
 
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +22,8 @@ export default function EditPhoto() {
   const { users } = useSearchUsers(query);
   const [selectedUsers, setSelectedUsers] = useState<{ id: number; nickname: string }[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [groupQuery, setGroupQuery] = useState(""); // State for group search query
+  const { groups } = useSearchGroups(groupQuery); // Use the hook to search groups
 
   useEffect(() => {
     if (photo) {
@@ -80,6 +83,22 @@ export default function EditPhoto() {
     }));
   };
 
+  const handleGroupClick = (group: { id: number; name: string; users: { id: number; nickname: string }[] }) => {
+    const newUsers = group.users.filter(user => !formData.visibleTo.includes(user.id));
+    setFormData((prev) => ({
+      ...prev,
+      visibleTo: [...prev.visibleTo, ...newUsers.map(user => user.id)],
+    }));
+    setSelectedUsers((prev) => [...prev, ...newUsers]);
+    setGroupQuery(""); // Clear the group search input field
+  };
+
+  useEffect(() => {
+    setSelectedUsers((prev) =>
+      prev.filter((user) => formData.visibleTo.includes(user.id))
+    );
+  }, [formData.visibleTo]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await editPhoto(Number(photoId), formData);
@@ -105,7 +124,7 @@ export default function EditPhoto() {
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Photo Name
+              Photo Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -120,7 +139,7 @@ export default function EditPhoto() {
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Description
+              Description <span className="text-red-500">*</span>
             </label>
             <textarea
               name="description"
@@ -135,7 +154,7 @@ export default function EditPhoto() {
           {/* URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Photo URL
+              Photo URL <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -198,6 +217,31 @@ export default function EditPhoto() {
             </div>
           </div>
 
+          {/* Search Groups */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Add group members who can see your post
+            </label>
+            <input
+              type="text"
+              value={groupQuery}
+              onChange={(e) => setGroupQuery(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Search for groups"
+            />
+            <div className="mt-2 max-h-40 overflow-y-auto">
+              {groups.map((group) => (
+                <div
+                  key={group.id}
+                  className="cursor-pointer p-2 bg-gray-200 hover:bg-green-200 margin-1 rounded-lg text-black"
+                  onClick={() => handleGroupClick(group)}
+                >
+                  {group.name}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Selected Users */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -238,6 +282,10 @@ export default function EditPhoto() {
             </button>
           </div>
         </form>
+
+        <p className="mt-2 text-sm text-gray-500">
+          <span className="text-red-500">*</span> Required fields
+        </p>
       </div>
     </div>
   );

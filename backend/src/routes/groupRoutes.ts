@@ -7,13 +7,14 @@ import {
   getGroupById,
   addPhotoToGroup,
   removePhotoFromGroup,
-  getJoinRequests, // Import the new controller function
-  approveJoinRequest, // Import the new controller function
-  getAllGroups, // Import the new controller function
-  deleteGroup, // Import the new controller function
-  leaveGroup, // Import the new controller function
-  refuseJoinRequest, // Import the new controller function
-  isUserMember, // Import the new controller function
+  getJoinRequests,
+  approveJoinRequest,
+  getAllGroups,
+  deleteGroup,
+  leaveGroup,
+  refuseJoinRequest,
+  isUserMember,
+  getGroupMembers,
 } from '../controllers/groupController.js';
 import protectRoute from "../middleware/protectRoute.js";
 
@@ -33,5 +34,6 @@ router.delete('/:groupId', protectRoute, deleteGroup); // Add the new route
 router.post('/leave-group', protectRoute, leaveGroup); // Add the new route
 router.post('/refuse-join-request', protectRoute, refuseJoinRequest); // Add the new route
 router.get('/:groupId/is-member/:userId', protectRoute, isUserMember); // Add the new route
+router.get('/:groupId/members', protectRoute, getGroupMembers); // Add the new route
 
 export default router;
