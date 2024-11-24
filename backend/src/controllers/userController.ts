@@ -66,6 +66,7 @@ export const getUserById = async (req: Request, res: Response) => {
             visibleTo: {
               select: { user: { select: { id: true, nickname: true } } },
             },
+            tags: { select: { tag: { select: { content: true } } } },
           },
         },
       },
@@ -81,6 +82,7 @@ export const getUserById = async (req: Request, res: Response) => {
       photos: user.photos.map((photo) => ({
         ...photo,
         numOfComments: photo._count.comments, // Attach the number of comments
+        tags: photo.tags.map((tag) => tag.tag.content), // Extract tag content
       })),
     };
 

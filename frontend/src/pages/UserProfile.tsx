@@ -99,7 +99,7 @@ export default function UserProfile() {
                     nickname: photo.uploader.nickname,
                     id: photo.uploader.id,
                   },
-                  tags: photo.tags || [],
+                  tags: photo.tags,
                 }}
                 onEdit={(id) => navigate(`/myProfile/edit-photo/${id}`)}
                 onDelete={handleDelete}
