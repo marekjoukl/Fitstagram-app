@@ -76,6 +76,7 @@ export const getPhotos = async (req: Request, res: Response) => {
           },
       include: {
         uploader: { select: { nickname: true, id: true } },
+        tags: { select: { tag: { select: { content: true } } } },
         _count: { select: { comments: true } },
       },
       orderBy: { date: "desc" },
@@ -84,6 +85,7 @@ export const getPhotos = async (req: Request, res: Response) => {
     const photosWithCommentCount = photos.map((photo) => ({
       ...photo,
       numOfComments: photo._count.comments, // Attach comment count
+      tags: photo.tags.map((tag) => tag.tag.content), // Extract tag content
     }));
 
     res.status(200).json(photosWithCommentCount);
@@ -101,14 +103,20 @@ export const getPhotosById = async (req: Request, res: Response) => {
       where: { uploaderId: Number(id) },
       include: {
         uploader: { select: { nickname: true, id: true } },
+        tags: { select: { tag: { select: { content: true } } } },
       },
     });
+
+    const photosWithTags = photos.map((photo) => ({
+      ...photo,
+      tags: photo.tags.map((tag) => tag.tag.content),
+    }));
 
     if (!photos) {
       return res.status(404).json({ error: "Photo not found" });
     }
 
-    res.status(200).json(photos);
+    res.status(200).json(photosWithTags);
   } catch (error) {
     console.error("Error fetching photo:", error);
     res.status(500).json({ error: "Internal Server Error" });

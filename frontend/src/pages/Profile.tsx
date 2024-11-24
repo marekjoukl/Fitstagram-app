@@ -78,6 +78,7 @@ export default function Profile() {
                   date: photo.date,
                   uploaderId: photo.uploaderId,
                   uploader: { nickname: user.nickname, id: user.id },
+                  tags: photo.tags,
                 }}
               />
             ))}

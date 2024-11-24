@@ -15,6 +15,7 @@ type PostProps = {
       id: number;
     };
     uploaderId: number;
+    tags: string[]; 
   };
   onEdit?: (id: number) => void;
   onDelete?: (id: number) => void;

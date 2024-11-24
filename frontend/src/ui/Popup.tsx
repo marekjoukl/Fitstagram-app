@@ -22,6 +22,7 @@ type Photo = {
     nickname: string;
     id: number;
   };
+  tags: string[]; 
 };
 
 type PopupProps = {
@@ -239,6 +240,16 @@ const Popup: React.FC<PopupProps> = ({
                 <p className="text-sm font-semibold text-gray-800">
                   ❤️ {photo.numOfLikes} Likes
                 </p>
+              </div>
+              <div className="mb-4 flex flex-wrap">
+                {photo.tags && photo.tags.map((tag) => (
+                  <div
+                    key={tag}
+                    className="m-1 p-2 rounded-lg bg-gray-200 text-black"
+                  >
+                    {tag}
+                  </div>
+                ))}
               </div>
             </div>
 

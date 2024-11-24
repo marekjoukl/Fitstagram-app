@@ -13,6 +13,7 @@ interface Photo {
   };
   uploaderId: number;
   comments: [];
+  tags: string[];
 }
 
 const useUserPhotos = (id: number | undefined) => {
