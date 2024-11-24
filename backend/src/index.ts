@@ -27,5 +27,5 @@ if (process.env.NODE_ENV !== "development") {
   });
 }
 app.listen(5001, () => {
-  console.log(`Example app listening on port 3000`);
+  console.log(`Example app listening on port 5001`);
 });
