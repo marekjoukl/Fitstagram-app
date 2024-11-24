@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
-import { Role } from "@prisma/client";
 
 // Create a new photo
 export const createPhoto = async (req: Request, res: Response) => {
@@ -62,7 +61,7 @@ export const getPhotos = async (req: Request, res: Response) => {
         !userId
           ? { visibleTo: { none: {} } }
           : // If user is admin or modeeturn all photos
-          role === Role.ADMIN || role === Role.MODERATOR
+          role === "ADMIN" || role === "MODERATOR"
           ? {}
           : // If userId is provided, return photos uploaded by the user, photos visible to the user, and public photos
             {
@@ -226,7 +225,7 @@ export const deletePhoto = async (req: Request, res: Response) => {
   try {
     const photo = await prisma.photo.findUnique({ where: { id: Number(id) } });
 
-    if (!photo || (photo.uploaderId !== req.user.id && req.user.role !== Role.ADMIN && req.user.role !== Role.MODERATOR)) {
+    if (!photo || (photo.uploaderId !== req.user.id && req.user.role !== "ADMIN" && req.user.role !== "MODERATOR")) {
       return res
         .status(403)
         .json({ error: "Unauthorized to delete this photo" });

@@ -8,7 +8,6 @@ import useAddPhotoToGroup from "../hooks/useAddPhotoToGroup";
 import useRemovePhotoFromGroup from "../hooks/useRemovePhotoFromGroup"; // Import the new hook
 import { useAuthContext } from "../contexts/AuthContext";
 import Comment from "./Comment";
-import { Role } from "@prisma/client";
 import { useNavigate } from "react-router-dom";
 import useDeletePhoto from "../hooks/useDeletePhoto";
 
@@ -23,7 +22,7 @@ type Photo = {
     nickname: string;
     id: number;
   };
-  tags?: string[]; 
+  tags?: string[];
 };
 
 type PopupProps = {
@@ -53,14 +52,15 @@ const Popup: React.FC<PopupProps> = ({
     id: number;
     name: string;
   };
-  
+
   const [groups, setGroups] = useState<Group[]>([]);
   const [showGroups, setShowGroups] = useState(false);
   const { addComment, loading: addingComment } = useAddComment();
   const { likePhoto, loading: liking } = useLikePhoto();
   const { unlikePhoto, loading: unliking } = useUnlikePhoto();
   const { addPhotoToGroup, loading: addingPhotoToGroup } = useAddPhotoToGroup();
-  const { removePhotoFromGroup, loading: removingPhotoFromGroup } = useRemovePhotoFromGroup(); // Use the new hook
+  const { removePhotoFromGroup, loading: removingPhotoFromGroup } =
+    useRemovePhotoFromGroup(); // Use the new hook
   const { deletePhoto, loadingDelete } = useDeletePhoto();
   const {
     comments,
@@ -165,7 +165,7 @@ const Popup: React.FC<PopupProps> = ({
     if (!photo) return;
     const data = await addPhotoToGroup(groupId, photo.id);
     if (data) {
-      console.log('Photo added to group:', data);
+      console.log("Photo added to group:", data);
     }
     setShowGroups(!showGroups);
   };
@@ -174,7 +174,7 @@ const Popup: React.FC<PopupProps> = ({
     if (!photo || !groupId) return;
     const data = await removePhotoFromGroup(groupId, photo.id);
     if (!data) {
-      console.log('Photo removed from group:', data);
+      console.log("Photo removed from group:", data);
       onClose(); // Close the popup after removal
       if (onRemoveFromGroup) onRemoveFromGroup(); // Call the callback function
     }
@@ -256,14 +256,15 @@ const Popup: React.FC<PopupProps> = ({
                 </p>
               </div>
               <div className="mb-4 flex flex-wrap">
-                {photo.tags && photo.tags.map((tag) => (
-                  <div
-                    key={tag}
-                    className="m-1 p-2 rounded-lg bg-gray-200 text-black"
-                  >
-                    {tag}
-                  </div>
-                ))}
+                {photo.tags &&
+                  photo.tags.map((tag) => (
+                    <div
+                      key={tag}
+                      className="m-1 rounded-lg bg-gray-200 p-2 text-black"
+                    >
+                      {tag}
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -284,8 +285,8 @@ const Popup: React.FC<PopupProps> = ({
                       author={comment.author}
                       canDelete={
                         authUser?.id === comment.author.id ||
-                        authUser?.role === Role.ADMIN ||
-                        authUser?.role === Role.MODERATOR
+                        authUser?.role === "ADMIN" ||
+                        authUser?.role === "MODERATOR"
                       }
                       onDelete={handleDeleteComment}
                     />
@@ -309,25 +310,25 @@ const Popup: React.FC<PopupProps> = ({
                   >
                     {addingComment ? "Posting..." : "Post Comment"}
                   </button>
-                
-                {(authUser.role === Role.ADMIN || authUser.role === Role.MODERATOR) && (
-                  loadingDelete ? (
-                    <p>Deleting photo...</p>
-                  ) : (
-                    <button
-                      onClick={handleDelete}
-                      className="mt-2 w-full rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-red-600 disabled:opacity-50"
-                      disabled={loadingDelete}
-                    >
-                      Delete photo
-                    </button>
-                  )
-                )}
+
+                  {(authUser.role === "ADMIN" ||
+                    authUser.role === "MODERATOR") &&
+                    (loadingDelete ? (
+                      <p>Deleting photo...</p>
+                    ) : (
+                      <button
+                        onClick={handleDelete}
+                        className="mt-2 w-full rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-red-600 disabled:opacity-50"
+                        disabled={loadingDelete}
+                      >
+                        Delete photo
+                      </button>
+                    ))}
                 </div>
               )}
             </div>
           </div>
-          <div className="flex flex-start">
+          <div className="flex-start flex">
             {authUser?.id === photo?.uploader.id && (
               <div className="absolute bottom-4 right-4 flex space-x-2">
                 {groupId && (
@@ -349,8 +350,10 @@ const Popup: React.FC<PopupProps> = ({
                   </button>
                 )}
                 {showGroups && (
-                  <div className="absolute left-30 mt-2 w-48 rounded-lg bg-white p-4 shadow-lg">
-                    <h4 className="mb-2 text-sm font-semibold text-gray-800">Your Groups</h4>
+                  <div className="left-30 absolute mt-2 w-48 rounded-lg bg-white p-4 shadow-lg">
+                    <h4 className="mb-2 text-sm font-semibold text-gray-800">
+                      Your Groups
+                    </h4>
                     <ul className="space-y-2">
                       {groups.map((group) => (
                         <li

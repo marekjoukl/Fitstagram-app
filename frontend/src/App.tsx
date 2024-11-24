@@ -14,7 +14,6 @@ import UserProfile from "./pages/UserProfile";
 import Group from "./pages/Group";
 import Groups from "./pages/Groups";
 import Tags from "./pages/Tags";
-import { Role } from "@prisma/client";
 
 const App = () => {
   const { authUser, isLoading, unregisteredUser } = useAuthContext();
@@ -78,9 +77,14 @@ const App = () => {
         />
         <Route
           path="/tags"
-          element={(authUser && 
-            (authUser.role === Role.ADMIN || authUser.role === Role.MODERATOR)) 
-            ? <Tags /> : <Navigate to="/" />}
+          element={
+            authUser &&
+            (authUser.role === "ADMIN" || authUser.role === "MODERATOR") ? (
+              <Tags />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

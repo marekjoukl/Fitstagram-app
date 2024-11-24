@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
-import { Role } from "@prisma/client";
 
 export const searchUsers = async (req: Request, res: Response) => {
   const { nickname } = req.query;
@@ -50,8 +49,7 @@ export const getUserById = async (req: Request, res: Response) => {
       include: {
         photos: {
           where:
-            loggedInUserRole === Role.ADMIN ||
-            loggedInUserRole === Role.MODERATOR
+            loggedInUserRole === "ADMIN" || loggedInUserRole === "MODERATOR"
               ? {} // Admins and moderators see all photos
               : {
                   OR: [

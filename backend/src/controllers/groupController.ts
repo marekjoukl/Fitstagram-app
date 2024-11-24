@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import prisma from "../db/prisma.js";
-import { Photo } from "@prisma/client";
 
 export const createGroup = async (req: Request, res: Response) => {
   const { name, managerId, userIds } = req.body;
