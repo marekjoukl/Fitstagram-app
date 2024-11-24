@@ -154,6 +154,7 @@ const Popup: React.FC<PopupProps> = ({
     if (data) {
       console.log('Photo added to group:', data);
     }
+    setShowGroups(!showGroups);
   };
 
   const handleRemoveFromGroup = async () => {

@@ -60,20 +60,18 @@ export const getPhotos = async (req: Request, res: Response) => {
       where:
         // If userId is not provided, return public photos
         !userId
-        ? { visibleTo: { none: {} } }
-
-        // If user is admin or modeeturn all photos
-        : role === Role.ADMIN || role === Role.MODERATOR
-        ? {}
-        
-        // If userId is provided, return photos uploaded by the user, photos visible to the user, and public photos
-        : {
-            OR: [
-              { uploaderId: Number(userId) },
-              { visibleTo: { some: { userId: Number(userId) } } },
-              { visibleTo: { none: {} } },
-            ],
-          },
+          ? { visibleTo: { none: {} } }
+          : // If user is admin or modeeturn all photos
+          role === Role.ADMIN || role === Role.MODERATOR
+          ? {}
+          : // If userId is provided, return photos uploaded by the user, photos visible to the user, and public photos
+            {
+              OR: [
+                { uploaderId: Number(userId) },
+                { visibleTo: { some: { userId: Number(userId) } } },
+                { visibleTo: { none: {} } },
+              ],
+            },
       include: {
         uploader: { select: { nickname: true, id: true } },
         tags: { select: { tag: { select: { content: true } } } },
@@ -82,10 +80,10 @@ export const getPhotos = async (req: Request, res: Response) => {
       orderBy: { date: "desc" },
     });
 
-    const photosWithCommentCount = photos.map((photo) => ({
+    const photosWithCommentCount = photos.map((photo: any) => ({
       ...photo,
       numOfComments: photo._count.comments, // Attach comment count
-      tags: photo.tags.map((tag) => tag.tag.content), // Extract tag content
+      tags: photo.tags.map((tag: any) => tag.tag.content), // Extract tag content
     }));
 
     res.status(200).json(photosWithCommentCount);
@@ -107,9 +105,9 @@ export const getPhotosById = async (req: Request, res: Response) => {
       },
     });
 
-    const photosWithTags = photos.map((photo) => ({
+    const photosWithTags = photos.map((photo: any) => ({
       ...photo,
-      tags: photo.tags.map((tag) => tag.tag.content),
+      tags: photo.tags.map((tag: any) => tag.tag.content),
     }));
 
     if (!photos) {
@@ -131,7 +129,9 @@ export const getPhotoById = async (req: Request, res: Response) => {
       where: { id: Number(id) },
       include: {
         uploader: { select: { nickname: true } },
-        visibleTo: { select: { user: { select: { id: true, nickname: true } } } },
+        visibleTo: {
+          select: { user: { select: { id: true, nickname: true } } },
+        },
         tags: { select: { tag: { select: { content: true } } } },
       },
     });
@@ -143,8 +143,8 @@ export const getPhotoById = async (req: Request, res: Response) => {
     // Map tags to extract content
     const formattedPhoto = {
       ...photo,
-      tags: photo.tags.map(tag => tag.tag.content),
-      visibleTo: photo.visibleTo.map(user => user.user),
+      tags: photo.tags.map((tag: any) => tag.tag.content),
+      visibleTo: photo.visibleTo.map((user: any) => user.user),
     };
 
     res.status(200).json(formattedPhoto);
@@ -175,7 +175,9 @@ export const updatePhoto = async (req: Request, res: Response) => {
     });
 
     // Update visibleTo
-    await prisma.usersWhoCanSeePhotos.deleteMany({ where: { photoId: Number(id) } });
+    await prisma.usersWhoCanSeePhotos.deleteMany({
+      where: { photoId: Number(id) },
+    });
     await prisma.usersWhoCanSeePhotos.createMany({
       data: visibleTo.map((userId: number) => ({
         photoId: Number(id),
@@ -238,10 +240,12 @@ export const deletePhoto = async (req: Request, res: Response) => {
         photos: { none: {} },
       },
     });
-    
+
     await prisma.likes.deleteMany({ where: { photoId: Number(id) } });
     await prisma.comment.deleteMany({ where: { photoId: Number(id) } });
-    await prisma.usersWhoCanSeePhotos.deleteMany({ where: { photoId: Number(id) } });
+    await prisma.usersWhoCanSeePhotos.deleteMany({
+      where: { photoId: Number(id) },
+    });
 
     await prisma.photo.delete({ where: { id: Number(id) } });
     res.status(200).json({ message: "Photo deleted successfully" });

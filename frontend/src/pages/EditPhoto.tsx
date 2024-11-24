@@ -84,7 +84,7 @@ export default function EditPhoto() {
     e.preventDefault();
     const success = await editPhoto(Number(photoId), formData);
     if (success) {
-      navigate("/myProfile");
+      navigate(-1);
     }
   };
 
@@ -224,7 +224,7 @@ export default function EditPhoto() {
           <div className="flex justify-between">
             <button
               type="button"
-              onClick={() => navigate("/myProfile")}
+              onClick={() => navigate(-1)}
               className="rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow-md transition hover:bg-gray-400"
             >
               Cancel

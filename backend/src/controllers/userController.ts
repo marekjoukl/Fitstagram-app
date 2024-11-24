@@ -79,10 +79,10 @@ export const getUserById = async (req: Request, res: Response) => {
     // Format the response to include the correct structure
     const userWithPhotos = {
       ...user,
-      photos: user.photos.map((photo) => ({
+      photos: user.photos.map((photo: any) => ({
         ...photo,
         numOfComments: photo._count.comments, // Attach the number of comments
-        tags: photo.tags.map((tag) => tag.tag.content), // Extract tag content
+        tags: photo.tags.map((tag: any) => tag.tag.content), // Extract tag content
       })),
     };
 
