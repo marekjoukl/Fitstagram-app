@@ -8,6 +8,7 @@ type Photo = {
   numOfLikes: number;
   numOfComments: number;
   date: string;
+  tags: string[];
   uploader: {
     nickname: string;
     id: number;

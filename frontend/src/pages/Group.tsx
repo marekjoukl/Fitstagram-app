@@ -5,6 +5,7 @@ import useDeletePhoto from "../hooks/useDeletePhoto";
 import useRequestToJoinGroup from "../hooks/useRequestToJoinGroup"; // Import the new hook
 import useFetchJoinRequests from "../hooks/useFetchJoinRequests"; // Import the new hook
 import useApproveJoinRequest from "../hooks/useApproveJoinRequest"; // Import the new hook
+//import useDeleteGroup from "../hooks/useDeleteGroup"; // Import the new hook
 import { useEffect, useState } from "react";
 import Post from "../ui/Post";
 import ManageMembersPopup from "../ui/ManageMembersPopup"; // Import the new component
@@ -20,6 +21,7 @@ export default function Group() {
   const { requestToJoinGroup, loadingRequest } = useRequestToJoinGroup(); // Use the new hook
   const { fetchJoinRequests, joinRequests, loadingRequests } = useFetchJoinRequests(); // Use the new hook
   const { approveJoinRequest, loadingApprove } = useApproveJoinRequest(); // Use the new hook
+  //const { deleteGroup, loadingDeleteGroup } = useDeleteGroup(); // Use the new hook
 
   const [photos, setPhotos] = useState(initialPhotos);
   const [showManageMembers, setShowManageMembers] = useState(false);
@@ -75,6 +77,13 @@ export default function Group() {
       await refetch(); // Refresh the group data
     }
   };
+
+  // const handleDeleteGroup = async () => {
+  //   if (groupId) {
+  //     await deleteGroup(Number(groupId));
+  //     navigate("/groups");
+  //   }
+  // };
 
   const handleBackClick = () => {
     if (location.state?.from === "groups") {
@@ -180,6 +189,12 @@ export default function Group() {
                     )}
                   </div>
                 )}
+                {/* <button
+                  className="mt-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-red-600"
+                  onClick={handleDeleteGroup}
+                >
+                  Delete Group
+                </button> */}
               </>
             )}
             {authUser && !group?.users.some((user: { userId: number }) => user.userId === authUser.id) && (
@@ -207,6 +222,7 @@ export default function Group() {
                   name: photo.name,
                   description: photo.description,
                   url: photo.url,
+                  tags: photo.tags || [],
                   numOfLikes: photo.numOfLikes || 0,
                   numOfComments: photo.comments?.length || 0,
                   date: photo.date,
