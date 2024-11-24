@@ -220,7 +220,7 @@ export default function EditPhoto() {
           {/* Search Groups */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Add Group Members
+              Add group members who can see your post
             </label>
             <input
               type="text"
