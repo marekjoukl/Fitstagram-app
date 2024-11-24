@@ -213,10 +213,30 @@ export const approveJoinRequest = async (req: Request, res: Response) => {
 
 export const getAllGroups = async (req: Request, res: Response) => {
   try {
-    const groups = await prisma.group.findMany();
+    const groups = await prisma.group.findMany({
+      include: {
+        users: true, // Include users in the group
+      },
+    });
+    console.log('groups:', groups);
     res.status(200).json(groups);
   } catch (error) {
     console.error("Error fetching groups:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const deleteGroup = async (req: Request, res: Response) => {
+  const { groupId } = req.params;
+
+  try {
+    await prisma.group.delete({
+      where: { id: parseInt(groupId, 10) },
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error deleting group:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

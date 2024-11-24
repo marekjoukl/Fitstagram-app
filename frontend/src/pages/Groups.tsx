@@ -9,7 +9,7 @@ interface Group {
 
 export default function Groups() {
   const navigate = useNavigate();
-  const { groups, loading, error } = useFetchGroups();
+  const { myGroups, allGroups, loading, error } = useFetchGroups();
 
   const handleGroupClick = (groupId: number) => {
     navigate(`/group/${groupId}`, { state: { from: "groups" } });
@@ -32,20 +32,38 @@ export default function Groups() {
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : (
-          <div className="grid grid-cols-3 gap-6">
-            {groups.map((group: Group) => (
-              <div
-                key={group.id}
-                className="cursor-pointer rounded-lg bg-white p-6 shadow-md hover:bg-gray-100"
-                onClick={() => handleGroupClick(group.id)}
-              >
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {group.name}
-                </h2>
-                <p className="mt-2 text-gray-600">{group.description}</p>
-              </div>
-            ))}
-          </div>
+          <>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">My Groups</h2>
+            <div className="grid grid-cols-3 gap-6 mb-8">
+              {myGroups.map((group: Group) => (
+                <div
+                  key={group.id}
+                  className="cursor-pointer rounded-lg bg-white p-6 shadow-md hover:bg-gray-100"
+                  onClick={() => handleGroupClick(group.id)}
+                >
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    {group.name}
+                  </h2>
+                  <p className="mt-2 text-gray-600">{group.description}</p>
+                </div>
+              ))}
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">All Groups</h2>
+            <div className="grid grid-cols-3 gap-6">
+              {allGroups.map((group: Group) => (
+                <div
+                  key={group.id}
+                  className="cursor-pointer rounded-lg bg-white p-6 shadow-md hover:bg-gray-100"
+                  onClick={() => handleGroupClick(group.id)}
+                >
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    {group.name}
+                  </h2>
+                  <p className="mt-2 text-gray-600">{group.description}</p>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 
 const useFetchGroups = () => {
-  const [groups, setGroups] = useState([]);
+  const [myGroups, setMyGroups] = useState([]);
+  const [allGroups, setAllGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,7 +13,10 @@ const useFetchGroups = () => {
         throw new Error("Failed to fetch groups");
       }
       const data = await res.json();
-      setGroups(data);
+      const userId = 1; // Replace with actual user ID
+      console.log(data);
+      setMyGroups(data.filter((group: any) => group.users && group.users.some((user: any) => user.userId === userId)));
+      setAllGroups(data);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -25,7 +28,7 @@ const useFetchGroups = () => {
     fetchGroups();
   }, []);
 
-  return { groups, loading, error };
+  return { myGroups, allGroups, loading, error };
 };
 
 export default useFetchGroups;
