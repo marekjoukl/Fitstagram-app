@@ -259,3 +259,23 @@ export const deleteGroup = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const leaveGroup = async (req: Request, res: Response) => {
+  const { groupId, userId } = req.body;
+
+  try {
+    await prisma.usersInGroups.delete({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId: parseInt(groupId, 10),
+        },
+      },
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error leaving group:", error); // Log the error
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

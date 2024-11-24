@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const useAddPhotoToGroup = () => {
   const [loading, setLoading] = useState(false);
@@ -19,12 +19,14 @@ const useAddPhotoToGroup = () => {
       });
 
       if (!res.ok) throw new Error('Failed to add photo to group');
+      toast.success('Photo added to group successfully!');
       const data = await res.json();
       setLoading(false);
       return data;
     } catch (error) {
       setError((error as Error).message);
       setLoading(false);
+      toast.error('Failed to add photo to group. Please try again.');
       return null;
     }
   };

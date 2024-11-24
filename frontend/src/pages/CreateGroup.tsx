@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 import useCreateGroup from "../hooks/useCreateGroup";
 import useSearchUsers from "../hooks/useSearchUsers";
+import toast from "react-hot-toast";
 
 export default function CreateGroup() {
   const { authUser } = useAuthContext();
@@ -15,12 +16,12 @@ export default function CreateGroup() {
 
   const handleCreateGroup = async () => {
     if (groupName.trim() === "") {
-      alert("Group name cannot be empty");
+      toast.error("Group name is required");
       return;
     }
   
     if (!authUser?.id) {
-      alert("User ID is missing");
+      toast.error("You must be logged in to create a group");
       return;
     }
   
@@ -30,9 +31,9 @@ export default function CreateGroup() {
     }
     const newGroup = await createGroup(groupName, authUser.id, userIds); // Pass userIds to the createGroup function
     if (newGroup) {
-      alert(`Group "${newGroup.name}" created successfully!`);
       setGroupName("");
       setSelectedUsers([]);
+      navigate(`/groups/`);
     }
   };
 

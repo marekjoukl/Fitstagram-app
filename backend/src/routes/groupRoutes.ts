@@ -11,6 +11,7 @@ import {
   approveJoinRequest, // Import the new controller function
   getAllGroups, // Import the new controller function
   deleteGroup, // Import the new controller function
+  leaveGroup, // Import the new controller function
 } from '../controllers/groupController.js';
 import protectRoute from "../middleware/protectRoute.js";
 
@@ -27,5 +28,6 @@ router.get('/:groupId/join-requests', protectRoute, getJoinRequests); // Add the
 router.post('/approve-join-request', protectRoute, approveJoinRequest); // Add the new route
 router.get('/', getAllGroups); // Add the new route
 router.delete('/:groupId', protectRoute, deleteGroup); // Add the new route
+router.post('/leave-group', protectRoute, leaveGroup); // Add the new route
 
 export default router;
