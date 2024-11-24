@@ -216,8 +216,8 @@ export default function Group() {
                     id: photo.uploader.id,
                   },
                 }}
-                onEdit={(id) => navigate(`/group/${groupId}/edit-photo/${id}`)}
-                onDelete={handleDelete}
+                onEdit={photo.uploaderId === authUser?.id ? (id: number) => navigate(`/myProfile/edit-photo/${id}`) : undefined}
+                onDelete={photo.uploaderId === authUser?.id ? handleDelete : undefined}
                 groupId={Number(groupId)} // Pass groupId prop
               />
             ))}

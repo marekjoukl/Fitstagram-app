@@ -3,6 +3,7 @@ import useSearchUsers from "../hooks/useSearchUsers";
 import useAddUsersToGroup from "../hooks/useAddUsersToGroup";
 import useRemoveUserFromGroup from "../hooks/useRemoveUserFromGroup";
 import useFetchCurrentMembers from "../hooks/useFetchCurrentMembers";
+import { useAuthContext } from "../contexts/AuthContext";
 
 interface ManageMembersPopupProps {
   groupId: string;
@@ -17,6 +18,7 @@ export default function ManageMembersPopup({ groupId, onClose }: ManageMembersPo
   const { addUsers, error: addUsersError } = useAddUsersToGroup(groupId);
   const { removeUser, error: removeUserError } = useRemoveUserFromGroup(groupId);
   const { currentMembers, error: fetchMembersError, fetchCurrentMembers } = useFetchCurrentMembers(groupId);
+  const { authUser } = useAuthContext();
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -68,13 +70,15 @@ export default function ManageMembersPopup({ groupId, onClose }: ManageMembersPo
                   <p className="text-sm font-semibold">{user.username}</p>
                   <p className="text-sm text-gray-500">{user.nickname}</p>
                 </div>
-                <button
+                {user.id !== authUser?.id && (
+                  <button
                     type="button"
                     onClick={() => handleRemoveMember(user.id)}
                     className="bg-red-500 text-white font-semibold py-1 px-3 rounded-lg hover:bg-red-700"
-                >
+                  >
                     Remove
-                </button>
+                  </button>
+                )}
               </div>
             ))}
           </div>
