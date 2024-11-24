@@ -24,6 +24,6 @@ if (process.env.NODE_ENV !== "development") {
     res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
   });
 }
-app.listen(3000, () => {
+app.listen(5001, () => {
   console.log(`Example app listening on port 3000`);
 });
