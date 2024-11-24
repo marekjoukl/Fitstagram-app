@@ -17,6 +17,7 @@ type Photo = {
   numOfLikes: number;
   numOfComments: number;
   date: string;
+  tags: string[];
   uploader: {
     nickname: string;
     id: number;
@@ -169,7 +170,11 @@ export default function Home() {
 
         {/* Logout/Login Button */}
         <div className="mt-4">
-          {authUser ? ( <LogoutButton onLogout={() => fetchPhotos()} /> ) : ( <LoginButton /> ) }
+          {authUser ? (
+            <LogoutButton onLogout={() => fetchPhotos()} />
+          ) : (
+            <LoginButton />
+          )}
         </div>
       </aside>
 
@@ -306,7 +311,7 @@ export default function Home() {
                 {groups.map((group) => (
                   <div
                     key={group.id}
-                    className="flex items-center p-4 hover:bg-gray-100 cursor-pointer"
+                    className="flex cursor-pointer items-center p-4 hover:bg-gray-100"
                     onClick={() => handleGroupClick(group.id)}
                   >
                     <div className="ml-4">
