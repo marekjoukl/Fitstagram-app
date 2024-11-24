@@ -2,6 +2,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Post from "../ui/Post";
 import useGetUserById from "../hooks/useGetUserById";
+import useDeleteUser from "../hooks/useDeleteUser";
+import { useAuthContext } from "../contexts/AuthContext";
 
 export default function Profile() {
   const { userId } = useParams();
@@ -9,6 +11,9 @@ export default function Profile() {
   const { user, loading, error } = useGetUserById(Number(userId));
 
   const [photos, setPhotos] = useState(user?.photos || []);
+  const { deleteUser, loadingDelete } = useDeleteUser();
+  const { authUser } = useAuthContext();
+
   // Update photos when the user data is loaded
   useEffect(() => {
     if (user?.photos) {
@@ -28,11 +33,24 @@ export default function Profile() {
     return <p className="text-center text-red-500">{error}</p>;
   }
 
+  const handleDeleteUser = async () => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${user?.nickname}?`
+    );
+
+    if (confirmDelete) {
+      const deleted = await deleteUser(Number(userId));
+      if (deleted) {
+        navigate("/");
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       {/* User Info */}
       <div className="container mx-auto max-w-6xl">
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between">
           <button
             className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 shadow-md transition hover:bg-gray-300"
             onClick={() => {
@@ -41,6 +59,19 @@ export default function Profile() {
           >
             ← Back to Main Page
           </button>
+          {authUser?.role === "ADMIN" && (
+            loadingDelete ? (
+              <p className="text-red-500">Deleting user...</p>
+            ) : (
+              <button
+                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-red-600"
+                onClick={handleDeleteUser}
+                disabled={loadingDelete}
+              >
+                Delete user
+              </button>
+            )
+          )}
         </div>
 
         <div className="mb-8 flex flex-col items-center bg-white p-6 shadow-md lg:flex-row lg:p-8">

@@ -131,3 +131,51 @@ export const requestToJoinGroup = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// Delete a user
+export const deleteUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    if (req.user?.role !== "ADMIN") {
+      res.status(403).json({ error: "Not authorized to delete user" });
+      return;
+    }
+    const groups = await prisma.group.findMany({ where: { managerId: parseInt(userId, 10) } });
+    for (const group of groups) {
+      await prisma.photosInGroups.deleteMany({ where: { groupId: group.id } });
+      await prisma.usersInGroups.deleteMany({ where: { groupId: group.id } });
+      await prisma.usersWaitingToJoinGroup.deleteMany({ where: { groupId: group.id } });
+      await prisma.group.delete({ where: { id: group.id } });
+    }
+    
+    await prisma.usersWaitingToJoinGroup.deleteMany({ where: { userId: parseInt(userId, 10) } });
+    await prisma.usersInGroups.deleteMany({ where: { userId: parseInt(userId, 10) } });
+
+    const photos = await prisma.photo.findMany({ where: { uploaderId: parseInt(userId, 10) } });
+
+    for (const photo of photos) {
+      await prisma.tagsOnPhotos.deleteMany({ where: { photoId: Number(photo.id) } });
+
+      // If a tag is not associated with any photo, delete it
+      await prisma.tag.deleteMany({ where: { photos: { none: {} } } });
+      await prisma.photosInGroups.deleteMany({ where: { photoId: Number(photo.id) } });
+      await prisma.likes.deleteMany({ where: { photoId: Number(photo.id) } });
+      await prisma.comment.deleteMany({ where: { photoId: Number(photo.id) } });
+      await prisma.usersWhoCanSeePhotos.deleteMany({ where: { photoId: Number(photo.id) } });
+
+      await prisma.photo.delete({ where: { id: photo.id } });
+    }
+    await prisma.usersWhoCanSeePhotos.deleteMany({ where: { userId: parseInt(userId, 10) } });
+    await prisma.likes.deleteMany({ where: { userId: parseInt(userId, 10) } });
+    await prisma.comment.deleteMany({ where: { authorId: parseInt(userId, 10) } });
+    
+    await prisma.user.delete({ where: { id: parseInt(userId, 10) } });
+
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+};
+    
