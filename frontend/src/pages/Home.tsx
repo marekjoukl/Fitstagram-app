@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
 import LogoutButton from "../ui/LogoutButton";
@@ -381,6 +381,7 @@ export default function Home() {
             onClose={closePopup}
             photo={selectedPhoto}
             onUpdateComments={handleCommentsUpdate}
+            onDeletePhoto={fetchPhotos}
           />
         )}
       </main>

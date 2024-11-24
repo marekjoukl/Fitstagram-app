@@ -226,7 +226,7 @@ export const deletePhoto = async (req: Request, res: Response) => {
   try {
     const photo = await prisma.photo.findUnique({ where: { id: Number(id) } });
 
-    if (!photo || photo.uploaderId !== req.user.id) {
+    if (!photo || (photo.uploaderId !== req.user.id && req.user.role !== Role.ADMIN && req.user.role !== Role.MODERATOR)) {
       return res
         .status(403)
         .json({ error: "Unauthorized to delete this photo" });

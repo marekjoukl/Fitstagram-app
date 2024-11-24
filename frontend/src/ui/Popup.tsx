@@ -10,6 +10,7 @@ import { useAuthContext } from "../contexts/AuthContext";
 import Comment from "./Comment";
 import { Role } from "@prisma/client";
 import { useNavigate } from "react-router-dom";
+import useDeletePhoto from "../hooks/useDeletePhoto";
 
 type Photo = {
   id: number;
@@ -32,6 +33,7 @@ type PopupProps = {
   onUpdateComments?: () => void;
   groupId?: number; // Add groupId prop
   onRemoveFromGroup?: () => void; // Add onRemoveFromGroup prop
+  onDeletePhoto?: () => void;
 };
 
 const Popup: React.FC<PopupProps> = ({
@@ -41,6 +43,7 @@ const Popup: React.FC<PopupProps> = ({
   onUpdateComments = () => {},
   groupId, // Add groupId prop
   onRemoveFromGroup, // Add onRemoveFromGroup prop
+  onDeletePhoto = () => {},
 }) => {
   const [newComment, setNewComment] = useState("");
   const [liked, setLiked] = useState(false);
@@ -58,6 +61,7 @@ const Popup: React.FC<PopupProps> = ({
   const { unlikePhoto, loading: unliking } = useUnlikePhoto();
   const { addPhotoToGroup, loading: addingPhotoToGroup } = useAddPhotoToGroup();
   const { removePhotoFromGroup, loading: removingPhotoFromGroup } = useRemovePhotoFromGroup(); // Use the new hook
+  const { deletePhoto, loadingDelete } = useDeletePhoto();
   const {
     comments,
     loading: loadingComments,
@@ -98,6 +102,15 @@ const Popup: React.FC<PopupProps> = ({
 
     checkGroupMembership();
   }, [authUser]);
+
+  const handleDelete = async () => {
+    if (!photo) return;
+    const success = await deletePhoto(photo.id);
+    if (success) {
+      onDeletePhoto();
+      onClose();
+    }
+  };
 
   const handleNavigate = () => {
     authUser?.id === photo?.uploader.id
@@ -296,6 +309,20 @@ const Popup: React.FC<PopupProps> = ({
                   >
                     {addingComment ? "Posting..." : "Post Comment"}
                   </button>
+                
+                {(authUser.role === Role.ADMIN || authUser.role === Role.MODERATOR) && (
+                  loadingDelete ? (
+                    <p>Deleting photo...</p>
+                  ) : (
+                    <button
+                      onClick={handleDelete}
+                      className="mt-2 w-full rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-red-600 disabled:opacity-50"
+                      disabled={loadingDelete}
+                    >
+                      Delete photo
+                    </button>
+                  )
+                )}
                 </div>
               )}
             </div>
