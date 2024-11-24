@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import prisma from '../db/prisma.js';
+import { Request, Response } from "express";
+import prisma from "../db/prisma.js";
+import { Photo } from "@prisma/client";
 
 export const createGroup = async (req: Request, res: Response) => {
   const { name, managerId, userIds } = req.body;
-  console.log('userIds:', userIds);
+  console.log("userIds:", userIds);
   try {
     const newGroup = await prisma.group.create({
       data: {
@@ -19,14 +20,14 @@ export const createGroup = async (req: Request, res: Response) => {
 
     res.status(201).json(newGroup);
   } catch (error) {
-    console.error('Error creating group:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error creating group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 export const addUserToGroup = async (req: Request, res: Response) => {
   const { groupId, userIds } = req.body;
-  console.log('Adding users to group:', { groupId, userIds });
+  console.log("Adding users to group:", { groupId, userIds });
 
   try {
     const usersInGroup = await prisma.usersInGroups.createMany({
@@ -39,8 +40,8 @@ export const addUserToGroup = async (req: Request, res: Response) => {
 
     res.status(201).json(usersInGroup);
   } catch (error) {
-    console.error('Error adding users to group:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error adding users to group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -59,31 +60,34 @@ export const removeUserFromGroup = async (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error('Error removing user from group:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error removing user from group:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 export const searchGroups = async (req: Request, res: Response) => {
-    const { name } = req.query;
-  
-    try {
-      const groups = await prisma.group.findMany({
-        where: {
-          name: {
-            contains: name as string,
-          },
+  const { name } = req.query;
+
+  try {
+    const groups = await prisma.group.findMany({
+      where: {
+        name: {
+          contains: name as string,
         },
-      });
-  
-      res.status(200).json(groups);
-    } catch (error) {
-      console.error('Error searching groups:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+      },
+    });
+
+    res.status(200).json(groups);
+  } catch (error) {
+    console.error("Error searching groups:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
-export const getGroupById = async (req: Request, res: Response): Promise<void> => {
+export const getGroupById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { groupId } = req.params;
 
   try {
@@ -105,7 +109,8 @@ export const getGroupById = async (req: Request, res: Response): Promise<void> =
             },
           },
         },
-        usersToJoin: { // Include usersToJoin
+        usersToJoin: {
+          // Include usersToJoin
           include: {
             user: true,
           },
@@ -114,16 +119,16 @@ export const getGroupById = async (req: Request, res: Response): Promise<void> =
     });
 
     if (!group) {
-      res.status(404).json({ error: 'Group not found' });
+      res.status(404).json({ error: "Group not found" });
       return;
     }
 
     // Extract full photo details
-    const photos = group.photos.map(photoInGroup => photoInGroup.photo);
+    const photos = group.photos.map((photoInGroup: any) => photoInGroup.photo);
 
     res.status(200).json({ ...group, photos }); // Return the group object with full photo details
   } catch (error) {
-    console.error('Error fetching group details:', error);
+    console.error("Error fetching group details:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -218,7 +223,7 @@ export const getAllGroups = async (req: Request, res: Response) => {
         users: true, // Include users in the group
       },
     });
-    console.log('groups:', groups);
+    console.log("groups:", groups);
     res.status(200).json(groups);
   } catch (error) {
     console.error("Error fetching groups:", error);
