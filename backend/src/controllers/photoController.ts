@@ -241,6 +241,7 @@ export const deletePhoto = async (req: Request, res: Response) => {
       },
     });
 
+    await prisma.photosInGroups.deleteMany({ where: { photoId: Number(id) } });
     await prisma.likes.deleteMany({ where: { photoId: Number(id) } });
     await prisma.comment.deleteMany({ where: { photoId: Number(id) } });
     await prisma.usersWhoCanSeePhotos.deleteMany({
