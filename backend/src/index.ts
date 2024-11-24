@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes.js";
 import photoRoutes from "./routes/photoRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import groupRoutes from "./routes/groupRoutes.js";
+import tagRoutes from "./routes/tagRoutes.js";
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config();
@@ -19,6 +20,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/photos", photoRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/tags", tagRoutes);
 
 if (process.env.NODE_ENV !== "development") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));

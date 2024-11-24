@@ -22,7 +22,7 @@ type Photo = {
     nickname: string;
     id: number;
   };
-  tags: string[]; 
+  tags?: string[]; 
 };
 
 type PopupProps = {
