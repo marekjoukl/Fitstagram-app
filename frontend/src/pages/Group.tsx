@@ -154,92 +154,91 @@ export default function Group() {
         </div>
 
         <div className="mb-8 flex flex-col items-center bg-white p-6 shadow-md lg:flex-row lg:p-8">
-          {/* <img
-            src={group?.image}
-            alt="Group Avatar"
-            className="mb-4 h-36 w-36 rounded-full shadow-lg lg:mb-0"
-          /> */}
           <div className="lg:ml-6 relative">
             <h1 className="text-3xl font-bold text-black-800">
               {group?.name}
             </h1>
             <p className="mt-2 text-gray-600">{group?.description}</p>
-            {authUser?.id === group?.managerId && (
-              <>
-                <button
-                  className="mt-4 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600"
-                  onClick={handleManageMembersClick}
-                >
-                  Manage Members
-                </button>
-                {(group?.usersToJoin?.length ?? 0) > 0 && (
-                  <div className="relative">
-                    <button
-                      className="mt-4 ml-4 rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-yellow-600"
-                      onClick={handleShowRequestsClick}
-                    >
-                      New Requests
-                    </button>
-                    {showRequests && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white p-4 shadow-lg">
-                        <div className="flex justify-between items-center">
-                          <h2 className="text-lg font-bold text-gray-800">Join Requests</h2>
-                          <button
-                            className="text-red-500"
-                            onClick={handleCloseRequestsClick}
-                          >
-                            ×
-                          </button>
+            <div className="mt-4 flex flex-col space-y-4">
+              {authUser?.id === group?.managerId && (
+                <>
+                  <button
+                    className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600"
+                    onClick={handleManageMembersClick}
+                  >
+                    Manage Members
+                  </button>
+                  {(group?.usersToJoin?.length ?? 0) > 0 && (
+                    <div className="relative">
+                      <button
+                        className="rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-yellow-600"
+                        onClick={handleShowRequestsClick}
+                      >
+                        New Requests
+                      </button>
+                      {showRequests && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white p-4 shadow-lg">
+                          <div className="flex justify-between items-center">
+                            <h2 className="text-lg font-bold text-gray-800">Join Requests</h2>
+                            <button
+                              className="text-red-500"
+                              onClick={handleCloseRequestsClick}
+                            >
+                              ×
+                            </button>
+                          </div>
+                          <ul>
+                            {joinRequests.map((request: { userId: number; user: { nickname: string } }) => (
+                              <li key={request.userId} className="mt-2 flex justify-between items-center">
+                                {request.user.nickname}
+                                <div>
+                                  <button
+                                    className="text-green-500"
+                                    onClick={() => handleApproveRequest(request.userId)}
+                                  >
+                                    ✓
+                                  </button>
+                                  <button
+                                    className="text-red-500 ml-2"
+                                    onClick={() => handleRefuseRequest(request.userId)}
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                        <ul>
-                          {joinRequests.map((request: { userId: number; user: { nickname: string } }) => (
-                            <li key={request.userId} className="mt-2 flex justify-between items-center">
-                              {request.user.nickname}
-                              <div>
-                                <button
-                                  className="text-green-500"
-                                  onClick={() => handleApproveRequest(request.userId)}
-                                >
-                                  ✓
-                                </button>
-                                <button
-                                  className="text-red-500 ml-2"
-                                  onClick={() => handleRefuseRequest(request.userId)}
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+              {(authUser?.id === group?.managerId || authUser?.role === "ADMIN" || authUser?.role === "MODERATOR") && (
                 <button
-                  className="mt-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-red-600"
+                  className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-red-600"
                   onClick={handleDeleteGroup}
                 >
                   Delete Group
                 </button>
-              </>
-            )}
-            {authUser && group?.users.some((user: { userId: number }) => user.userId === authUser.id) && authUser.id !== group?.managerId && (
-              <button
-                className="mt-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-red-600"
-                onClick={handleLeaveGroup}
-              >
-                Leave Group
-              </button>
-            )}
-            {authUser && !group?.users.some((user: { userId: number }) => user.userId === authUser.id) && (
-              <button
-                className="mt-4 rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-green-600"
-                onClick={handleRequestToJoin}
-              >
-                Request to Join
-              </button>
-            )}
+              )}
+              {authUser && group?.users.some((user: { userId: number }) => user.userId === authUser.id) && authUser.id !== group?.managerId && (
+                <button
+                  className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-red-600"
+                  onClick={handleLeaveGroup}
+                >
+                  Leave Group
+                </button>
+              )}
+              {authUser && !group?.users.some((user: { userId: number }) => user.userId === authUser.id) && (
+                <button
+                  className="rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-green-600"
+                  onClick={handleRequestToJoin}
+                >
+                  Request to Join
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
