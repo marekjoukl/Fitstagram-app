@@ -20,12 +20,13 @@ const useGetPhotos = (userId?: number, role?: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPhotos = async () => {
+  const fetchPhotos = async (selectedTags: string[] = []) => {
     setLoading(true); // Reset loading state
     try {
       const query = new URLSearchParams();
       if (userId) query.append("userId", userId.toString());
       if (role) query.append("role", role);
+      if (selectedTags.length > 0) query.append("tags", selectedTags.join(","));
       const res = await fetch(`/api/photos?${query.toString()}`);
       if (!res.ok) {
         throw new Error("Failed to fetch photos");
@@ -40,7 +41,7 @@ const useGetPhotos = (userId?: number, role?: string) => {
   };
 
   useEffect(() => {
-    fetchPhotos();
+    fetchPhotos([]);
   }, [userId, role]); // Add userId and role as dependencies
 
   return { photos, loading, error, fetchPhotos };

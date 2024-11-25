@@ -30,3 +30,37 @@ export const getTags = async (_req: Request, res: Response) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// Search for tags
+export const searchTags = async (req: Request, res: Response) => {
+  const { name } = req.query;
+
+  try {
+    let tags: { content: string }[] = [];
+
+    if (typeof name === "string") {
+      if (name.length < 3) {
+        tags = await prisma.tag.findMany({
+          where: {
+            content: {
+              startsWith: name,
+            },
+          },
+        });
+      } else {
+        tags = await prisma.tag.findMany({
+          where: {
+            content: {
+              contains: name,
+            },
+          },
+        });
+      }
+    }
+
+    res.status(200).json(tags);
+  } catch (error) {
+    console.error("Error searching tags:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}

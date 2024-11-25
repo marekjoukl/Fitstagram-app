@@ -6,6 +6,7 @@ import LoginButton from "../ui/LoginButton";
 import useSearchUsers from "../hooks/useSearchUsers";
 import useSearchGroups from "../hooks/useSearchGroups";
 import useGetPhotos from "../hooks/useGetPhotos";
+import useSearchTags from "../hooks/useSearchTags";
 import Popup from "../ui/Popup";
 import { ArrowDown } from "../ui/ArrowDown";
 
@@ -29,7 +30,9 @@ export default function Home() {
   const navigate = useNavigate();
   const [userQuery, setUserQuery] = useState("");
   const [groupQuery, setGroupQuery] = useState("");
+  const [tagsQuery, setTagsQuery] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const {
     users,
@@ -41,6 +44,11 @@ export default function Home() {
     loading: loadingGroups,
     error: errorGroups,
   } = useSearchGroups(groupQuery);
+  const {
+    tags,
+    loading: loadingTags,
+    error: errorTags,
+  } = useSearchTags(tagsQuery);
   const {
     photos,
     loading: photosLoading,
@@ -64,6 +72,12 @@ export default function Home() {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setGroupQuery(event.target.value);
+  };
+
+  const handleTagsSearchChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setTagsQuery(event.target.value);
   };
 
   const handleCreateGroup = () => {
@@ -96,6 +110,23 @@ export default function Home() {
 
   const handleUserClick = (userId: number) => {
     navigate(`/profile/${userId}`);
+  };
+
+  const handleTagClick = (tagContent: string) => {
+    let updatedTags;
+    if (selectedTags.includes(tagContent)) {
+      updatedTags = selectedTags.filter(tag => tag !== tagContent);
+    } else {
+      updatedTags = [...selectedTags, tagContent];
+    }
+    setSelectedTags(updatedTags);
+    fetchPhotos(updatedTags);
+    setTagsQuery("");
+  };
+
+  const handleTagRemoveClick = (tag: string) => {
+    setSelectedTags(selectedTags.filter(t => t !== tag));
+    fetchPhotos(selectedTags.filter(t => t !== tag));
   };
 
   return (
@@ -196,7 +227,7 @@ export default function Home() {
         {/* Top Bar */}
         <div className="mb-8 flex items-center justify-between">
           {/* User Search Bar */}
-          <div className="relative mr-4 w-1/2">
+          <div className="relative mr-4 w-1/3">
             <div className="flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -269,7 +300,7 @@ export default function Home() {
           </div>
 
           {/* Group Search Bar */}
-          <div className="relative w-1/2">
+          <div className="relative mr-4 w-1/3">
             <div className="flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -336,6 +367,101 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {/* Tags Search Bar */}
+          <div className="relative w-1/3">
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="absolute left-3 h-5 w-5 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M15.5 10a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"
+                />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search tags..."
+                value={tagsQuery}
+                onChange={handleTagsSearchChange}
+                className="block w-full rounded-full border border-gray-300 bg-white px-4 py-2 pl-10 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+              {tagsQuery && (
+                <button
+                  type="button"
+                  onClick={() => setTagsQuery("")}
+                  className="absolute right-3 text-gray-400 hover:text-gray-600"
+                >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Tags Search Results */}
+            {tagsQuery && (
+              <div className="absolute z-[999] mt-2 w-full rounded-lg bg-white shadow-lg">
+                {loadingTags && <p className="p-4">Loading...</p>}
+                {errorTags && <p className="p-4 text-red-500">{errorTags}</p>}
+                {tags.map((tag) => (
+                  <div
+                    key={tag.id}
+                    className="flex cursor-pointer items-center p-4 hover:bg-gray-100"
+                    onClick={() => handleTagClick(tag.content)}
+                  >
+                    <div className="ml-4">
+                      <p className="text-sm font-semibold">{tag.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Selected Tags */}
+        <div className="mb-4 flex flex-wrap gap-2">
+          {selectedTags.map(tag => (
+            <div
+              key={tag}
+              className="flex items-center space-x-2 rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-black cursor-pointer hover:bg-red-200"
+              onClick={() => handleTagRemoveClick(tag)}
+            >
+              <span>{tag}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
+          ))}
         </div>
 
         {/* Posts Grid */}

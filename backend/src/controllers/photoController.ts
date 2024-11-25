@@ -52,25 +52,44 @@ export const createPhoto = async (req: Request, res: Response) => {
 
 // Get all photos
 export const getPhotos = async (req: Request, res: Response) => {
-  const { userId, role } = req.query;
+  const { userId, role, tags } = req.query;
 
   try {
+    const tagArray = tags ? (tags as string).split(",") : [];
+
     const photos = await prisma.photo.findMany({
-      where:
-        // If userId is not provided, return public photos
-        !userId
-          ? { visibleTo: { none: {} } }
-          : // If user is admin or modeeturn all photos
-          role === "ADMIN" || role === "MODERATOR"
-          ? {}
-          : // If userId is provided, return photos uploaded by the user, photos visible to the user, and public photos
-            {
-              OR: [
-                { uploaderId: Number(userId) },
-                { visibleTo: { some: { userId: Number(userId) } } },
-                { visibleTo: { none: {} } },
-              ],
-            },
+      where: {
+        AND: [
+          // If userId is not provided, return public photos
+          !userId
+            ? { visibleTo: { none: {} } }
+            : // If user is admin or moderator, return all photos
+            role === "ADMIN" || role === "MODERATOR"
+            ? {}
+            : // If userId is provided, return photos uploaded by the user, photos visible to the user, and public photos
+              {
+                OR: [
+                  { uploaderId: Number(userId) },
+                  { visibleTo: { some: { userId: Number(userId) } } },
+                  { visibleTo: { none: {} } },
+                ],
+              },
+          // Filter by tags if provided
+          tagArray.length > 0
+            ? {
+                AND: tagArray.map(tag => ({
+                  tags: {
+                    some: {
+                      tag: {
+                        content: tag,
+                      },
+                    },
+                  },
+                })),
+              }
+            : {},
+        ],
+      },
       include: {
         uploader: { select: { nickname: true, id: true } },
         tags: { select: { tag: { select: { content: true } } } },
