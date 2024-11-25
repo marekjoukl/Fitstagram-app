@@ -48,7 +48,7 @@
 		</dd>
 		<dt>URL aplikace</dt>
 		<dd><a href="https://fitstagram-iis.onrender.com">https://fitstagram-iis.onrender.com</a></dd>
-		<dd>(Aplikace bì¾í na bezplatném serveru Render, proto je mo¾né, ¾e prvotní naèítání aplikace chvíli potrvá)
+		<dd>(Aplikace bì¾í na bezplatném serveru Render, proto je mo¾né, ¾e prvotní naèítání aplikace chvíli potrvá - pøibli¾nì 30 sekund a¾ 1 minuta.)</dd>
 		</dd>
 	</dl>
 
@@ -66,14 +66,14 @@
 			<td>Administrátor</td>
 		</tr>
 		<tr>
-			<td>prodavac</td>
-			<td>prodavac</td>
-			<td>Prodavaè</td>
+			<td>moderator</td>
+			<td>moderator</td>
+			<td>Moderátor</td>
 		</tr>
 		<tr>
-			<td>franta</td>
-			<td>franta</td>
-			<td>Zákazník</td>
+			<td>123</td>
+			<td>123</td>
+			<td>Registrovaný u¾ivatel</td>
 		</tr>
 	</table>
 
@@ -99,11 +99,18 @@
 
 	<h2>Instalace</h2>
 
-	Struènì popi¹te:
-	<ul>
-		<li>Instalace závislostí a sestavení projektu</li>
+    <h2>Instalace</h2>
 
-	</ul>
+    Struènì popi¹te:
+    <ul>
+        <li>Konfigurace prostøedí</li>
+        Vytvoøte soubor .env v adresáøi backend a nastavte promìnné prostøedí <br>
+        DATABASE_URL, JWT_SECRET a NODE_ENV = development
+        <li>Instalace závislostí a spu¹tìní - Backend</li>
+        npm install, cd backend, npx prisma generate, npm run dev
+        <li>Instalace závislostí a spu¹tìní - Frontend</li>
+        cd frontend, npm install, npm run dev
+    </ul>
 
 	<h2>Známé problémy</h2>
 	<p>Zde popi¹te, které body zadání nejsou implementovány a z jakého dùvodu. Napø. &bdquo;Z èasových dùvodù nebyla
