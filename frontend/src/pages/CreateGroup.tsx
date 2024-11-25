@@ -93,7 +93,7 @@ export default function CreateGroup() {
                     </svg>
                     <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Search to add members..."
                     value={query}
                     onChange={handleSearchChange}
                     className="block w-full rounded-full border border-gray-300 bg-white px-4 py-2 pl-10 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500"

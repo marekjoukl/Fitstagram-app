@@ -354,17 +354,21 @@ const Popup: React.FC<PopupProps> = ({
                     <h4 className="mb-2 text-sm font-semibold text-gray-800">
                       Your Groups
                     </h4>
-                    <ul className="space-y-2">
-                      {groups.map((group) => (
-                        <li
-                          key={group.id}
-                          className="cursor-pointer text-sm text-gray-700 hover:underline"
-                          onClick={() => handleAddToGroup(group.id)}
-                        >
-                          {group.name}
-                        </li>
-                      ))}
-                    </ul>
+                    {addingPhotoToGroup ? (
+                      <p>Loading...</p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {groups.map((group) => (
+                          <li
+                            key={group.id}
+                            className="cursor-pointer text-sm text-gray-700 hover:underline"
+                            onClick={() => handleAddToGroup(group.id)}
+                          >
+                            {group.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 )}
               </div>
