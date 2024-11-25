@@ -127,13 +127,13 @@ export default function Home() {
                 <p>
                   Posts:{" "}
                   <span className="font-medium text-gray-700">
-                    {authUser.photos.length}
+                    {authUser?.photos?.length ?? 0}
                   </span>
                 </p>
                 <p>
                   Groups:{" "}
                   <span className="font-medium text-gray-700">
-                    {authUser.groups.length}
+                    {authUser?.groups?.length ?? 0}
                   </span>
                 </p>
               </div>
@@ -250,7 +250,7 @@ export default function Home() {
                 {users.map((user) => (
                   <div
                     key={user.id}
-                    className="flex items-center p-4 hover:bg-gray-100 cursor-pointer"
+                    className="flex cursor-pointer items-center p-4 hover:bg-gray-100"
                     onClick={() => handleUserClick(user.id)}
                   >
                     <img
