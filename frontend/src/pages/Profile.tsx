@@ -5,7 +5,6 @@ import useGetUserById from "../hooks/useGetUserById";
 import useDeleteUser from "../hooks/useDeleteUser";
 import useBlockUser from "../hooks/useBlockUser";
 import { useAuthContext } from "../contexts/AuthContext";
-import { Role } from "@prisma/client";
 
 export default function Profile() {
   const { userId } = useParams();
@@ -41,11 +40,11 @@ export default function Profile() {
     if (blocked) {
       refetch();
     }
-  }
+  };
 
   const handleDeleteUser = async () => {
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete ${user?.nickname}?`
+      `Are you sure you want to delete ${user?.nickname}?`,
     );
 
     if (confirmDelete) {
@@ -54,7 +53,7 @@ export default function Profile() {
         navigate("/");
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -70,22 +69,26 @@ export default function Profile() {
             ← Back to Main Page
           </button>
           <div>
-            {(authUser?.role === "ADMIN" || authUser?.role === "MODERATOR") && (
-              loadingBlock ? (
-                user?.role === Role.USER ? "Unblocking user..." : "Blocking user..."
+            {(authUser?.role === "ADMIN" || authUser?.role === "MODERATOR") &&
+              (loadingBlock ? (
+                user?.role === "USER" ? (
+                  "Unblocking user..."
+                ) : (
+                  "Blocking user..."
+                )
               ) : (
                 <button
                   className="rounded-lg bg-gray-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-gray-600"
                   onClick={handleBlockUser}
                   disabled={loadingDelete || loadingBlock}
                 >
-                  {user?.role === Role.USER ? "Unblock user" : "Block user"}
+                  {user?.role === "USER" ? "Unblock user" : "Block user"}
                 </button>
-              )
-            )}
+              ))}
             {authUser?.role === "ADMIN" && (
-              <div className="pl-4 inline-block"> {
-                loadingDelete ? (
+              <div className="inline-block pl-4">
+                {" "}
+                {loadingDelete ? (
                   <p className="text-red-500">Deleting user...</p>
                 ) : (
                   <button
@@ -95,8 +98,7 @@ export default function Profile() {
                   >
                     Delete user
                   </button>
-                )
-              }
+                )}
               </div>
             )}
           </div>

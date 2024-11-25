@@ -68,13 +68,31 @@ export const searchGroups = async (req: Request, res: Response) => {
   const { name } = req.query;
 
   try {
-    const groups = await prisma.group.findMany({
-      where: {
-        name: {
-          contains: name as string,
-        },
-      },
-    });
+    let groups: any[];
+
+    if (typeof name === "string") {
+      if (name.length < 3) {
+        // Fetch entries that start with the substring
+        groups = await prisma.group.findMany({
+          where: {
+            name: {
+              startsWith: name,
+            },
+          },
+        });
+      } else {
+        // Fetch entries that contain the substring
+        groups = await prisma.group.findMany({
+          where: {
+            name: {
+              contains: name,
+            },
+          },
+        });
+      }
+    } else {
+      groups = [];
+    }
 
     res.status(200).json(groups);
   } catch (error) {
