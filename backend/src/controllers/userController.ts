@@ -178,4 +178,38 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal Server Error" })
   }
 };
+
+// Block a user
+export const blockUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    if (req.user?.role !== "ADMIN" && req.user?.role !== "MODERATOR") {
+      res.status(403).json({ error: "Not authorized to block user" });
+      return;
+    }
+
+    const currentRole = await prisma.user.findUnique({
+      where: { id: parseInt(userId, 10) },
+      select: { role: true },
+    });
+
+    if (currentRole?.role === "LOGGED_USER") {
+      await prisma.user.update({
+        where: { id: parseInt(userId, 10) },
+        data: { role: "USER" },
+      });
+    } else if (currentRole?.role === "USER") {
+      await prisma.user.update({
+        where: { id: parseInt(userId, 10) },
+        data: { role: "LOGGED_USER" },
+      });
+    }
+
+    res.status(200).json({ message: "User blocked/unblocked successfully" });
+  } catch (error) {
+    console.error("Error blocking/unblocking user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
     

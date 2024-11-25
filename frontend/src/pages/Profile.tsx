@@ -3,15 +3,18 @@ import { useEffect, useState } from "react";
 import Post from "../ui/Post";
 import useGetUserById from "../hooks/useGetUserById";
 import useDeleteUser from "../hooks/useDeleteUser";
+import useBlockUser from "../hooks/useBlockUser";
 import { useAuthContext } from "../contexts/AuthContext";
+import { Role } from "@prisma/client";
 
 export default function Profile() {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { user, loading, error } = useGetUserById(Number(userId));
+  const { user, loading, error, refetch } = useGetUserById(Number(userId));
 
   const [photos, setPhotos] = useState(user?.photos || []);
   const { deleteUser, loadingDelete } = useDeleteUser();
+  const { blockUser, loadingBlock } = useBlockUser();
   const { authUser } = useAuthContext();
 
   // Update photos when the user data is loaded
@@ -31,6 +34,13 @@ export default function Profile() {
 
   if (error) {
     return <p className="text-center text-red-500">{error}</p>;
+  }
+
+  const handleBlockUser = async () => {
+    const blocked = await blockUser(Number(userId));
+    if (blocked) {
+      refetch();
+    }
   }
 
   const handleDeleteUser = async () => {
@@ -59,19 +69,37 @@ export default function Profile() {
           >
             ← Back to Main Page
           </button>
-          {authUser?.role === "ADMIN" && (
-            loadingDelete ? (
-              <p className="text-red-500">Deleting user...</p>
-            ) : (
-              <button
-                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-red-600"
-                onClick={handleDeleteUser}
-                disabled={loadingDelete}
-              >
-                Delete user
-              </button>
-            )
-          )}
+          <div>
+            {(authUser?.role === "ADMIN" || authUser?.role === "MODERATOR") && (
+              loadingBlock ? (
+                user?.role === Role.USER ? "Unblocking user..." : "Blocking user..."
+              ) : (
+                <button
+                  className="rounded-lg bg-gray-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-gray-600"
+                  onClick={handleBlockUser}
+                  disabled={loadingDelete || loadingBlock}
+                >
+                  {user?.role === Role.USER ? "Unblock user" : "Block user"}
+                </button>
+              )
+            )}
+            {authUser?.role === "ADMIN" && (
+              <div className="pl-4 inline-block"> {
+                loadingDelete ? (
+                  <p className="text-red-500">Deleting user...</p>
+                ) : (
+                  <button
+                    className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-red-600"
+                    onClick={handleDeleteUser}
+                    disabled={loadingDelete || loadingBlock}
+                  >
+                    Delete user
+                  </button>
+                )
+              }
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mb-8 flex flex-col items-center bg-white p-6 shadow-md lg:flex-row lg:p-8">

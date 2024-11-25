@@ -25,6 +25,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    if (user.role === "USER") {
+      res.status(403).json({ error: "Your account is blocked" });
+      return;
+    }
+
     generateToken(user.id.toString(), res);
     res.status(200).json({
       id: user.id,
