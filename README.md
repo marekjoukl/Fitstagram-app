@@ -81,14 +81,11 @@ npm run dev
 
 ## 👥 Authors
 
-- Jakub Zelenay
-  Admin/moderator rights, tag system, photo visibility control
+- Jakub Zelenay - Admin/moderator rights, tag system, photo visibility control
 
-- Marek Joukl
-  Environment setup, auth, layout, user profile, post/comment management
+- Marek Joukl - Environment setup, auth, layout, user profile, post/comment management
 
-- Ondrej Kožányi
-  Group management, membership requests, search/filter by group, group photo sharing
+- Ondrej Kožányi - Group management, membership requests, search/filter by group, group photo sharing
 
 ---
 
